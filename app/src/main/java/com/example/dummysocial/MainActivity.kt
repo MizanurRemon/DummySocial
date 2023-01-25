@@ -1,5 +1,6 @@
 package com.example.dummysocial
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -26,10 +27,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -52,7 +55,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val userViewModel: UserViewModel by viewModels()
+
     private val postViewModel: PostViewModel by viewModels()
 
     var height: Int = 0
@@ -94,6 +97,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainUI() {
 
+        val context = LocalContext.current
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -101,7 +105,7 @@ class MainActivity : ComponentActivity() {
                     backgroundColor = colorResource(R.color.default_color),
                     title = {
                         Text(
-                            stringResource(id = R.string.app_name),
+                            stringResource(id = R.string.app_name).toUpperCase(),
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
@@ -120,6 +124,18 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     },
+
+                    actions = {
+                        IconButton(onClick = {
+                            context.startActivity(Intent(context, UsersListActivity::class.java))
+                        }) {
+                            Icon(
+                                painterResource(id = R.drawable.messenger),
+                                contentDescription = "messenger",
+                                tint = Color.White
+                            )
+                        }
+                    }
                 )
             },
         ) {
@@ -164,9 +180,10 @@ class MainActivity : ComponentActivity() {
                 .padding(10.dp)
                 .fillMaxWidth(),
             elevation = 1.dp,
-            shape = RoundedCornerShape(4.dp)
+            shape = RoundedCornerShape(4.dp),
+            //backgroundColor = colorResource(R.color.LightGrey),
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Row(
                     modifier = Modifier.padding(5.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -190,7 +207,7 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = "${response.owner.title} ${response.owner.firstName} ${response.owner.lastName}",
                             fontSize = 14.sp,
-                            color = Color.Black
+                            //color = Color.Black
                         )
 
                         Text(
@@ -237,34 +254,8 @@ class MainActivity : ComponentActivity() {
                 Text(
                     text = "${response.likes.toString()} likes",
                     fontSize = 10.sp,
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
                 )
-            }
-        }
-    }
-
-    @Composable
-    fun getData(userViewModel: UserViewModel) {
-        when (val result = userViewModel.response.value) {
-            is ApiState.Success -> {
-                Log.d("dataxx", "getData: ${result.data.total.toString()}")
-                LazyColumn() {
-                    items(result.data.data) { response ->
-                        getAdapter(response)
-                    }
-                }
-            }
-
-            is ApiState.Failure -> {
-                Log.d("dataxx", "getData: ${result.msg.toString()}")
-            }
-
-            ApiState.Loading -> {
-                MyCircularProgress()
-            }
-
-            ApiState.Empty -> {
-
             }
         }
     }
@@ -280,64 +271,6 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-
-    @Composable
-    fun getAdapter(response: User_data_response) {
-        Card(
-            modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth(),
-            elevation = 1.dp,
-            shape = RoundedCornerShape(4.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = rememberImagePainter(response.picture),
-                    contentDescription = null,
-                    modifier = Modifier.size(60.dp)
-                )
-                Column(modifier = Modifier.padding(5.dp)) {
-                    Text(
-                        text = response.id.toString(), color = Color.Gray, fontSize = 10.sp,
-                    )
-                    Text(
-                        text = response.title.toString() + " " + response.firstName.toString() + " " + response.lastName.toString(),
-                        fontSize = 12.sp,
-                        color = Color.Black,
-                    )
-                }
-            }
-        }
-    }
-
-//    @Composable
-//    fun getPostAdapter(response: Post_response){
-//        Card(
-//            modifier = Modifier
-//                .padding(10.dp)
-//                .fillMaxWidth(),
-//            elevation = 1.dp,
-//            shape = RoundedCornerShape(4.dp)
-//        ) {
-//            Row(verticalAlignment = Alignment.CenterVertically) {
-//                Image(
-//                    painter = rememberImagePainter(response.),
-//                    contentDescription = null,
-//                    modifier = Modifier.size(60.dp)
-//                )
-//                Column(modifier = Modifier.padding(5.dp)) {
-//                    Text(
-//                         color = Color.Gray, fontSize = 10.sp,
-//                    )
-//                    Text(
-//
-//                        fontSize = 12.sp,
-//                        color = Color.Black,
-//                    )
-//                }
-//            }
-//        }
-//    }
 
     @Preview(showBackground = true)
     @Composable
