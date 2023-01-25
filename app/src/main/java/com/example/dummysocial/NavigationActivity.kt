@@ -58,7 +58,7 @@ class NavigationActivity : ComponentActivity() {
                 )
             },
         ) {
-            StartNavigation(this)
+            //StartNavigation(this)
         }
 
 
