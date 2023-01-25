@@ -212,7 +212,7 @@ class MainActivity : ComponentActivity() {
 
                     Column() {
                         Text(
-                            text = "${response.owner.title} ${response.owner.firstName} ${response.owner.lastName}",
+                            text = "${response.owner.firstName} ${response.owner.lastName}",
                             fontSize = 14.sp,
                             //color = Color.Black
                         )
@@ -300,5 +300,8 @@ class MainActivity : ComponentActivity() {
     }
 
 }
+
+
+//https://johncodeos.com/how-to-create-bottom-navigation-bar-with-jetpack-compose/
 
 
