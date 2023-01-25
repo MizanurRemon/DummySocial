@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Dummy Social</string>
     <string name="title_activity_users_list">UsersListActivity</string>
+    <string name="title_activity_navigation">NavigationActivity</string>
 </resources>

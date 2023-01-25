@@ -41,8 +41,10 @@ import androidx.lifecycle.lifecycleScope
 import coil.compose.ImagePainter
 import coil.compose.ImagePainter.State.Empty.painter
 import coil.compose.rememberImagePainter
+import com.example.dummysocial.BottomNavigation.BottomNavigationBar
 import com.example.dummysocial.Model.Post.Data
 import com.example.dummysocial.Model.User.User_data_response
+import com.example.dummysocial.Navigation.StartNavigation
 import com.example.dummysocial.Network.checkConnection
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.ScreenSize
@@ -89,6 +91,7 @@ class MainActivity : ComponentActivity() {
 
                     MainUI()
 
+
                 }
             }
         }
@@ -114,7 +117,7 @@ class MainActivity : ComponentActivity() {
                     navigationIcon = {
                         IconButton(onClick = {
                             //testClick("menu", context)
-
+                            context.startActivity(Intent(context, NavigationActivity::class.java))
 
                         }) {
                             Icon(
@@ -138,9 +141,13 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             },
+            bottomBar = {
+                BottomNavigationBar()
+            }
         ) {
             //getData(userViewModel = userViewModel)
             getPosts(postViewModel = postViewModel)
+            //StartNavigation()
         }
 
 
