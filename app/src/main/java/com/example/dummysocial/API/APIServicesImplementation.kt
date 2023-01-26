@@ -1,6 +1,7 @@
 package com.example.dummysocial.API
 
 import com.example.dummysocial.Model.Post.Post_response
+import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
 import com.example.dummysocial.Model.User.User_response
 import javax.inject.Inject
@@ -16,4 +17,7 @@ constructor(private val apiService: APIService) {
 
     suspend fun getPostDetails(id: String): PostDetails_response =
         apiService.getPostDetails(id)
+
+    suspend fun getPostComment(id: String): PostComment_response =
+        apiService.getPostComment(id)
 }

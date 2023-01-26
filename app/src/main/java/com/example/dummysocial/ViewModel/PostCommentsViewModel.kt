@@ -16,8 +16,9 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class PostDetailsViewModel @Inject
-constructor(private val mainRepository: MainRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+class PostCommentsViewModel @Inject
+constructor(private val mainRepository: MainRepository, savedStateHandle: SavedStateHandle) :
+    ViewModel() {
 
     val response: MutableState<ApiState> = mutableStateOf(ApiState.Empty)
 
@@ -25,36 +26,19 @@ constructor(private val mainRepository: MainRepository, savedStateHandle: SavedS
 
         val id: String? = savedStateHandle["id"]
         Log.d("dataxx", "id: ${id.toString()}")
-        getPostDetails(id.toString())
+        getPostComment(id.toString())
     }
 
-    private fun getPostDetails(id: String) = viewModelScope.launch {
-        mainRepository.getPostDetails(id).onStart {
+    private fun getPostComment(id: String) = viewModelScope.launch {
+        mainRepository.getPostComment(id).onStart {
             response.value = ApiState.Loading
         }.catch {
             response.value = ApiState.Failure(it)
         }.collect {
             //Log.d("dataxx", "POST Details VM:: ${response.toString()}")
-            response.value = ApiState.SuccessPostDetails(it)
+            response.value = ApiState.SuccessPostComment(it)
 
         }
     }
-    /*val response: MutableLiveData<PostDetails_response> = MutableLiveData()
 
-
-    fun getPostDetails(id: String) {
-        viewModelScope.launch {
-            mainRepository.getPostDetails(id = id).onStart {
-
-            }.catch { e ->
-                Log.d(
-                    "dataxx",
-                    "ERROR ${e.message} "
-                )
-            }.collect {
-
-                response.value = it
-            }
-        }
-    }*/
 }

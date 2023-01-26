@@ -10,12 +10,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -37,13 +36,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
+import com.example.dummysocial.Helpers.changeDateFormat
+import com.example.dummysocial.Helpers.isNightMode
+import com.example.dummysocial.Model.PostComment.Data
+import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
 import com.example.dummysocial.Network.checkConnection
+import com.example.dummysocial.R
+import com.example.dummysocial.Utils.*
 
-import com.example.dummysocial.Utils.ApiState
-import com.example.dummysocial.Utils.MyCircularProgress
-import com.example.dummysocial.Utils.ScreenSize
-import com.example.dummysocial.Utils.ShowToast
+import com.example.dummysocial.ViewModel.PostCommentsViewModel
 import com.example.dummysocial.ViewModel.PostDetailsViewModel
 import com.example.dummysocial.ViewModel.PostViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
@@ -56,6 +58,8 @@ import kotlin.math.log
 class PostDetailsActivity : ComponentActivity() {
 
     private val postDetailsViewModel: PostDetailsViewModel by viewModels()
+
+    private val postCommentsViewModel: PostCommentsViewModel by viewModels()
 
     var title: String = ""
 
@@ -107,7 +111,7 @@ class PostDetailsActivity : ComponentActivity() {
 
             when (val result = postDetailsViewModel.response.value) {
                 is ApiState.SuccessPostDetails -> {
-                    Log.d("dataxx", "getPostDetsils VM: ${result.data.text}")
+                    Log.d("dataxx", "getPostDetsils ACT: ${result.data.text}")
 
                     getData(result.data)
                 }
@@ -130,7 +134,52 @@ class PostDetailsActivity : ComponentActivity() {
 
     @Composable
     private fun getData(response: PostDetails_response) {
-        Column() {
+        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(
+                modifier = Modifier.padding(start = 5.dp, end = 5.dp, top = 10.dp, bottom = 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Image(
+                    painter = rememberImagePainter(response.owner.picture),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp, 30.dp)
+                        .clip(CircleShape)                       // clip to the circle shape
+                        .border(1.dp, Color.Gray, CircleShape)
+                        .fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center
+                )
+
+                Column() {
+                    Text(
+                        text = "${response.owner.firstName} ${response.owner.lastName}",
+                        fontSize = 14.sp,
+                        //color = Color.Black
+                    )
+
+                    Text(
+                        text = " ${
+                            changeDateFormat(
+                                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                                "MMM d, yyyy",
+                                response.publishDate
+                            )
+                        }",
+                        fontSize = 10.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
+
+            Text(
+                text = "${response.text}",
+                fontSize = 14.sp,
+                modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+            )
+
             Image(
                 painter = rememberImagePainter(response.image),
                 contentDescription = null,
@@ -139,7 +188,126 @@ class PostDetailsActivity : ComponentActivity() {
                     .size(ScreenSize.width().dp, 200.dp),
 
                 )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        painterResource(id = R.drawable.favorite),
+                        contentDescription = "react",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        painterResource(R.drawable.share),
+                        contentDescription = "share",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+
+                Spacer(Modifier.weight(1f))
+
+                Text(
+                    text = "${response.likes.toString()} likes",
+                    fontSize = 10.sp,
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+                )
+            }
+
+
+            Text(
+                text = "Comments",
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(10.dp)
+            )
+
+            loadComment()
+
         }
+    }
+
+
+    @Composable
+    private fun loadComment() {
+        when (val result = postCommentsViewModel.response.value) {
+            is ApiState.SuccessPostComment -> {
+                Log.d("dataxx", "getPostComment ACT: ${result.data.data.size.toString()}")
+
+                LazyColumn() {
+                    items(result.data.data) { response ->
+                        //getAdapter(response)
+                        getCommentAdapter(response)
+                    }
+                }
+            }
+
+            is ApiState.Failure -> {
+                Log.d("dataxx", "getData: ${result.msg.toString()}")
+            }
+
+            ApiState.Loading -> {
+                MyCircularProgress()
+            }
+
+            ApiState.Empty -> {
+
+            }
+        }
+    }
+
+    @Composable
+    private fun getCommentAdapter(response: Data) {
+
+
+        val cardColor = if (isNightMode(context = LocalContext.current)) R.color.status_color else R.color.Azure
+
+        Row(
+            modifier = Modifier.padding(top = 5.dp, bottom = 5.dp, start = 20.dp, end = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            //verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Image(
+                painter = rememberImagePainter(response.owner.picture),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(30.dp, 30.dp)
+                    .clip(CircleShape)                       // clip to the circle shape
+                    .border(1.dp, Color.Gray, CircleShape)
+                    .fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.Center
+            )
+
+            Card(
+                //modifier = Modifier.fillMaxWidth(),
+                elevation = 0.dp,
+                backgroundColor = colorResource(
+                    id = cardColor
+                )
+            ) {
+                Column(modifier = Modifier.padding(10.dp)) {
+                    Text(
+                        text = "${response.owner.firstName} ${response.owner.lastName}",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                        //color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.padding(2.dp))
+
+                    Text(
+                        text = response.message + ". ",
+                        fontSize = 12.sp,
+                    )
+                }
+            }
+        }
+
+
     }
 
 

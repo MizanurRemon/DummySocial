@@ -1,11 +1,11 @@
 package com.example.dummysocial.API
 
 import com.example.dummysocial.Model.Post.Post_response
+import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
 import com.example.dummysocial.Model.User.User_response
 import retrofit2.http.GET
 import retrofit2.http.Headers
-import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -31,5 +31,12 @@ interface APIService {
     suspend fun getPostDetails(
         @Path("id") id: String
     ): PostDetails_response
+
+
+    @Headers("app-id:63cd111ff805cea1c4e8e6a3")
+    @GET("post/{id}/comment")
+    suspend fun getPostComment(
+        @Path("id") id: String
+    ): PostComment_response
 }
 
