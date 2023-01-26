@@ -27,7 +27,7 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
 
     fun getPostDetails(id: String): Flow<PostDetails_response> = flow {
         val response = apiServicesImplementation.getPostDetails(id)
-        Log.d("dataxx", "POST DETAILS:: ${response.toString()}")
+        //Log.d("dataxx", "POST DETAILS:: ${response.toString()}")
         emit(response)
     }.flowOn(Dispatchers.IO)
 }

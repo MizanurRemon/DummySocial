@@ -49,6 +49,7 @@ import com.example.dummysocial.ViewModel.PostViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 
 @AndroidEntryPoint
@@ -102,25 +103,8 @@ class PostDetailsActivity : ComponentActivity() {
 //        val scope = rememberCoroutineScope()
 //        val scaffoldState = rememberScaffoldState()
 
-        Scaffold { innerPadding ->
-            val id = intent.getStringExtra("id").toString()
-//            postDetailsViewModel.getPostDetails(id)
-////            postDetailsViewModel.response.observe(this, Observer {
-////                Log.d("dataxx", "single data" + it.text)
-////                //getData(response = it)
-////
-////                title = it.text
-////
-////            })
-//
-//            val result = postDetailsViewModel.response.value
-//            if (result != null) {
-//                Log.d("dataxx", "single data:: " + result.text)
-//            }else{
-//                Log.d("dataxx", "single data:: " )
-//            }
-//            getData(id)
-            postDetailsViewModel.getPostDetails(id)
+        Scaffold {
+
             when (val result = postDetailsViewModel.response.value) {
                 is ApiState.SuccessPostDetails -> {
                     Log.d("dataxx", "getPostDetsils VM: ${result.data.text}")
