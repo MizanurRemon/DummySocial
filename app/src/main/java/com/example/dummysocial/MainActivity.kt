@@ -18,6 +18,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.example.dummysocial.BottomNavigation.BottomNavigationBar
 import com.example.dummysocial.Model.Post.Data
+import com.example.dummysocial.Navigation.NavigationDrawer
 import com.example.dummysocial.Navigation.StartNavigation
 import com.example.dummysocial.Network.checkConnection
 import com.example.dummysocial.Utils.ApiState
@@ -43,6 +45,8 @@ import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.PostViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -91,7 +95,11 @@ class MainActivity : ComponentActivity() {
     fun MainUI() {
         val navController = rememberNavController()
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        val scaffoldState = rememberScaffoldState()
+
         Scaffold(
+            scaffoldState = scaffoldState,
             topBar = {
                 TopAppBar(
 
@@ -106,8 +114,8 @@ class MainActivity : ComponentActivity() {
                     },
                     navigationIcon = {
                         IconButton(onClick = {
-                            //testClick("menu", context)
-                            context.startActivity(Intent(context, NavigationActivity::class.java))
+                            //ShowToast.successToast(context, "navigation")
+                            scope.launch { scaffoldState.drawerState.open() }
 
                         }) {
                             Icon(
@@ -117,6 +125,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     },
+
 
                     actions = {
                         IconButton(onClick = {
@@ -131,143 +140,29 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             },
+            drawerBackgroundColor = colorResource(id = R.color.default_color),
+            drawerContent = {
+                NavigationDrawer(
+                    scope = scope,
+                    scaffoldState = scaffoldState,
+                    navController = navController
+                )
+
+                //Text(text = "Drawer")
+            },
             bottomBar = {
                 BottomNavigationBar(navController)
             }
-        ) {
-            //getData(userViewModel = userViewModel)
-            //getPosts(postViewModel = postViewModel)
-            StartNavigation(context, navController, postViewModel)
-            //HomeScreen(navController = navController)
+        ) { innerPadding ->
+
+            Box(modifier = Modifier.padding(innerPadding)) {
+                StartNavigation(context, navController, postViewModel)
+            }
+
+
         }
 
 
-    }
-
-    @Composable
-    fun getPosts(postViewModel: PostViewModel) {
-        when (val result = postViewModel.response.value) {
-            is ApiState.SuccessPost -> {
-                Log.d("dataxx", "getPost: ${result.data.total.toString()}")
-                LazyColumn() {
-                    items(result.data.data) { response ->
-                        //getAdapter(response)
-                        getPostAdapter(response)
-                    }
-                }
-            }
-
-            is ApiState.Failure -> {
-                Log.d("dataxx", "getData: ${result.msg.toString()}")
-            }
-
-            ApiState.Loading -> {
-                MyCircularProgress()
-            }
-
-            ApiState.Empty -> {
-
-            }
-        }
-    }
-
-    @Composable
-    private fun getPostAdapter(response: Data) {
-        Card(
-            modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth(),
-            elevation = 1.dp,
-            shape = RoundedCornerShape(4.dp),
-            //backgroundColor = colorResource(R.color.LightGrey),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Row(
-                    modifier = Modifier.padding(5.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-
-                        painter = rememberImagePainter(response.owner.picture),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp, 30.dp)
-                            .clip(CircleShape)                       // clip to the circle shape
-                            .border(1.dp, Color.Gray, CircleShape)
-                            .fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.Center
-                    )
-
-                    Column() {
-                        Text(
-                            text = "${response.owner.firstName} ${response.owner.lastName}",
-                            fontSize = 14.sp,
-                            //color = Color.Black
-                        )
-
-                        Text(
-                            text = "${response.publishDate}",
-                            fontSize = 10.sp,
-                            color = Color.Gray
-                        )
-                    }
-                }
-
-                Text(
-                    text = "${response.text}",
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp)
-                )
-
-                Image(
-                    painter = rememberImagePainter(response.image),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(width.dp, 200.dp),
-
-                    )
-
-                Row() {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painterResource(R.drawable.favorite),
-                            contentDescription = "react",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painterResource(R.drawable.share),
-                            contentDescription = "share",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-
-                Text(
-                    text = "${response.likes.toString()} likes",
-                    fontSize = 10.sp,
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
-                )
-            }
-        }
-    }
-
-    @Composable
-    fun MyCircularProgress() {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(80.dp, 80.dp)
-            )
-        }
     }
 
     @Preview(showBackground = true)

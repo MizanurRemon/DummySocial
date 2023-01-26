@@ -3,6 +3,7 @@ package com.example.dummysocial.Repository
 import android.util.Log
 import com.example.dummysocial.API.APIServicesImplementation
 import com.example.dummysocial.Model.Post.Post_response
+import com.example.dummysocial.Model.PostDetails.PostDetails_response
 import com.example.dummysocial.Model.User.User_response
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +21,13 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
 
     fun getPosts(limit: String, page: String): Flow<Post_response> = flow {
         val response = apiServicesImplementation.getPosts(limit, page)
-        Log.d("dataxx", "POSTS:: ${response.toString()}")
+        //Log.d("dataxx", "POSTS:: ${response.toString()}")
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getPostDetails(id: String): Flow<PostDetails_response> = flow {
+        val response = apiServicesImplementation.getPostDetails(id)
+        Log.d("dataxx", "POST DETAILS:: ${response.toString()}")
         emit(response)
     }.flowOn(Dispatchers.IO)
 }

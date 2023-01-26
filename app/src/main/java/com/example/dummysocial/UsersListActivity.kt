@@ -1,11 +1,14 @@
 package com.example.dummysocial
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,7 +19,9 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,6 +33,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.dummysocial.Model.User.User_data_response
 import com.example.dummysocial.Utils.ApiState
+import com.example.dummysocial.Utils.MyCircularProgress
+import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.UserViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -101,24 +108,24 @@ class UsersListActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun MyCircularProgress() {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(80.dp, 80.dp)
-            )
-        }
-    }
 
     @Composable
     fun getAdapter(response: User_data_response) {
+        val context: Context = LocalContext.current
         Card(
             modifier = Modifier
                 .padding(10.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clickable {
+                    //ShowToast(context, "kj")
+                    Toast
+                        .makeText(
+                            context,
+                            "You have tapped on ${response.firstName.toString()}",
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
+                },
             elevation = 1.dp,
             shape = RoundedCornerShape(4.dp)
         ) {
@@ -126,16 +133,18 @@ class UsersListActivity : ComponentActivity() {
                 Image(
                     painter = rememberImagePainter(response.picture),
                     contentDescription = null,
-                    modifier = Modifier.size(60.dp)
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(50.dp))
                 )
                 Column(modifier = Modifier.padding(5.dp)) {
                     Text(
                         text = response.id.toString(), color = Color.Gray, fontSize = 10.sp,
                     )
                     Text(
-                        text = response.title.toString() + " " + response.firstName.toString() + " " + response.lastName.toString(),
-                        fontSize = 12.sp,
-                        color = Color.Black,
+                        text = response.firstName.toString() + " " + response.lastName.toString(),
+                        fontSize = 14.sp,
                     )
                 }
             }

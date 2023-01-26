@@ -21,7 +21,7 @@ constructor(private val mainRepository: MainRepository) : ViewModel() {
     val response: MutableState<ApiState> = mutableStateOf(ApiState.Empty)
 
     init {
-        getPosts("50", "0")
+        getPosts("15", "0")
     }
 
     fun getPosts(limit: String, page: String) = viewModelScope.launch {
