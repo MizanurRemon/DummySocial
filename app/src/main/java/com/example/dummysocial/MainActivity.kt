@@ -18,6 +18,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,13 +41,16 @@ import com.example.dummysocial.BottomNavigation.BottomNavigationBar
 import com.example.dummysocial.Model.Post.Data
 import com.example.dummysocial.Navigation.NavigationDrawer
 import com.example.dummysocial.Navigation.StartNavigation
+import com.example.dummysocial.Network.NetworkStateViewModel
 import com.example.dummysocial.Network.checkConnection
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.PostViewModel
+import com.example.dummysocial.ViewModel.UserDetailsViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -53,9 +58,11 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private val postViewModel: PostViewModel by viewModels()
+    private val networkStateViewModel: NetworkStateViewModel by viewModels()
 
     var height: Int = 0
     var width: Int = 0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +83,7 @@ class MainActivity : ComponentActivity() {
         checkNetwork()
         //(application as DaggerApplication).applicationComponent.inject(this)
         setContent {
+
             DummySocialTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -84,8 +92,6 @@ class MainActivity : ComponentActivity() {
                 ) {
 
                     MainUI()
-
-
                 }
             }
         }
@@ -97,6 +103,7 @@ class MainActivity : ComponentActivity() {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
         val scaffoldState = rememberScaffoldState()
+
 
         Scaffold(
             scaffoldState = scaffoldState,
@@ -151,12 +158,24 @@ class MainActivity : ComponentActivity() {
                 //Text(text = "Drawer")
             },
             bottomBar = {
-                BottomNavigationBar(navController)
+                Column() {
+
+                    BottomNavigationBar(navController)
+                }
             }
         ) { innerPadding ->
 
+
+            val userDetailsViewModel: UserDetailsViewModel by viewModels()
             Box(modifier = Modifier.padding(innerPadding)) {
-                StartNavigation(context, navController, postViewModel)
+                StartNavigation(
+                    context,
+                    navController,
+                    postViewModel,
+                    networkStateViewModel,
+                    userDetailsViewModel
+                )
+
             }
 
 
@@ -177,9 +196,13 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launchWhenStarted {
             checkConnection().collect {
                 if (it) {
-                    ShowToast.successToast(this@MainActivity, "Internet connected")
+                    //ShowToast.successToast(this@MainActivity, "Internet connected")
+                    networkStateViewModel.changeNetWorkState(true)
+
                 } else {
-                    ShowToast.successToast(this@MainActivity, "Connection Error")
+                    networkStateViewModel.changeNetWorkState(false)
+                    ShowToast.errorToast(this@MainActivity, "Connection Error")
+
                 }
             }
         }

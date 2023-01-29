@@ -1,5 +1,6 @@
 package com.example.dummysocial.Screen
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -12,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,20 +30,45 @@ import coil.compose.rememberImagePainter
 import com.example.dummysocial.Helpers.changeDateFormat
 import com.example.dummysocial.Model.Post.Data
 import com.example.dummysocial.Navigation.NavigationItem
+import com.example.dummysocial.Network.NetworkStateViewModel
 import com.example.dummysocial.R
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.MyCircularProgress
 import com.example.dummysocial.Utils.ScreenSize
+import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.View.PostDetailsActivity
 import com.example.dummysocial.ViewModel.PostViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
+
+@SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
-fun HomeScreen(postViewModel: PostViewModel) {
-    getPosts(postViewModel = postViewModel)
+fun HomeScreen(postViewModel: PostViewModel, networkStateViewModel: NetworkStateViewModel) {
+    getPosts(postViewModel = postViewModel, networkStateViewModel)
+    var scope = rememberCoroutineScope()
+    scope.launch {
+        networkStateViewModel.networkState.collect {
+
+
+
+        }
+    }
+
+    val networkState by remember {
+        mutableStateOf(networkStateViewModel.networkState)
+
+    }
+
+
 }
 
+
+@SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
-fun getPosts(postViewModel: PostViewModel) {
+fun getPosts(postViewModel: PostViewModel, networkStateViewModel: NetworkStateViewModel) {
+
+
     when (val result = postViewModel.response.value) {
         is ApiState.SuccessPost -> {
             Log.d("dataxx", "getPost: ${result.data.total.toString()}")
@@ -54,6 +82,7 @@ fun getPosts(postViewModel: PostViewModel) {
                     )
                 }"
             )*/
+
             LazyColumn() {
                 items(result.data.data) { response ->
                     //getAdapter(response)
@@ -75,6 +104,7 @@ fun getPosts(postViewModel: PostViewModel) {
         }
     }
 }
+
 
 @Composable
 private fun getPostAdapter(response: Data) {

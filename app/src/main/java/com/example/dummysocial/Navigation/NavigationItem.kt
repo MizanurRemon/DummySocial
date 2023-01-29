@@ -7,4 +7,7 @@ sealed class NavigationItem(val route: String, var icon: Int, val title: String)
     object HomeScreen : NavigationItem("homeScreen", R.drawable.home, "Home")
     object SearchScreen :
         NavigationItem("searchScreen", R.drawable.search, "Search")
+
+    object ProfileScreen :
+        NavigationItem("profileScreen", R.drawable.user, "Profile")
 }

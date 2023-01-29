@@ -72,6 +72,7 @@ class PostDetailsActivity : ComponentActivity() {
     var width: Int = 0
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -350,7 +351,7 @@ class PostDetailsActivity : ComponentActivity() {
     private fun largeImageDialog(
         dialogState: Boolean, imageUrl: String, onDismissRequest: (dialogState: Boolean) -> Unit
     ) {
-        val scale = remember { mutableStateOf(1f) }
+        var scale = remember { mutableStateOf(1f) }
         val rotationState = remember { mutableStateOf(1f) }
 
         if (dialogState) {
@@ -384,7 +385,10 @@ class PostDetailsActivity : ComponentActivity() {
                             //    modifier = Modifier.fillMaxSize()
                         )
                         TextButton(
-                            onClick = { onDismissRequest(dialogState) },
+                            onClick = {
+                                onDismissRequest(dialogState)
+                                //lscale = mutableStateOf(1f)
+                            },
                             modifier = Modifier.align(Alignment.TopEnd)
                         ) {
                             Text(text = "CLOSE", color = colorResource(id = R.color.DarkOrange))

@@ -6,6 +6,7 @@ import com.example.dummysocial.Model.Post.Post_response
 import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
 import com.example.dummysocial.Model.User.User_response
+import com.example.dummysocial.Model.UserDetails.User_details_response
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -17,6 +18,13 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
 
     fun getUser(limit: String, page: String): Flow<User_response> = flow {
         val response = apiServicesImplementation.getUsers(limit, page)
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getUserDetails(id: String): Flow<User_details_response> = flow {
+        val response = apiServicesImplementation.getUserDetails(id)
+
+        Log.d("dataxx", "USER DETAILS:: ${response.toString()}")
         emit(response)
     }.flowOn(Dispatchers.IO)
 

@@ -4,6 +4,7 @@ import com.example.dummysocial.Model.Post.Post_response
 import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
 import com.example.dummysocial.Model.User.User_response
+import com.example.dummysocial.Model.UserDetails.User_details_response
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
@@ -17,6 +18,13 @@ interface APIService {
         @Query("limit") limit: String,
         @Query("page") page: String
     ): User_response
+
+
+    @Headers("app-id:63cd111ff805cea1c4e8e6a3")
+    @GET("user/{id}/")
+    suspend fun getUserDetails(
+        @Path("id") id: String
+    ): User_details_response
 
 
     @Headers("app-id:63cd111ff805cea1c4e8e6a3")

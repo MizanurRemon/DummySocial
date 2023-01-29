@@ -4,6 +4,7 @@ import com.example.dummysocial.Model.Post.Post_response
 import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
 import com.example.dummysocial.Model.User.User_response
+import com.example.dummysocial.Model.UserDetails.User_details_response
 import javax.inject.Inject
 
 class APIServicesImplementation @Inject
@@ -11,6 +12,9 @@ constructor(private val apiService: APIService) {
 
     suspend fun getUsers(limit: String, page: String): User_response =
         apiService.getUser(limit, page)
+
+    suspend fun getUserDetails(id: String): User_details_response =
+        apiService.getUserDetails(id)
 
     suspend fun getPosts(limit: String, page: String): Post_response =
         apiService.getPosts(limit, page)

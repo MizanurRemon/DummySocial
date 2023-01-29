@@ -14,8 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,10 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +29,6 @@ import coil.compose.rememberImagePainter
 import com.example.dummysocial.Model.User.User_data_response
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.MyCircularProgress
-import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.UserViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -85,7 +79,7 @@ class UsersListActivity : ComponentActivity() {
     @Composable
     fun getData(userViewModel: UserViewModel) {
         when (val result = userViewModel.response.value) {
-            is ApiState.Success -> {
+            is ApiState.SuccessUserList -> {
                 Log.d("dataxx", "getData: ${result.data.total.toString()}")
                 LazyColumn() {
                     items(result.data.data) { response ->
