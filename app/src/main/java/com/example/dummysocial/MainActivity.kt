@@ -2,6 +2,7 @@ package com.example.dummysocial
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.DisplayMetrics
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -43,18 +44,21 @@ import com.example.dummysocial.Navigation.NavigationDrawer
 import com.example.dummysocial.Navigation.StartNavigation
 import com.example.dummysocial.Network.NetworkStateViewModel
 import com.example.dummysocial.Network.checkConnection
+import com.example.dummysocial.Permissions.MultiplePermissions
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.PostViewModel
 import com.example.dummysocial.ViewModel.UserDetailsViewModel
 import com.example.dummysocial.ViewModel.UserPostViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -83,7 +87,11 @@ class MainActivity : ComponentActivity() {
         width = displayMetrics.widthPixels
 
         checkNetwork()
-        //(application as DaggerApplication).applicationComponent.inject(this)
+
+        removeRestriction()
+
+
+
         setContent {
 
             DummySocialTheme {
@@ -93,10 +101,16 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
 
+                    MultiplePermissions()
                     MainUI()
                 }
             }
         }
+    }
+
+    private fun removeRestriction() {
+        val builder: StrictMode.VmPolicy.Builder = StrictMode.VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
     }
 
     @Composable

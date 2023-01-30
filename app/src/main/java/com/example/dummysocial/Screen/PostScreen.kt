@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.dummysocial.Helpers.changeDateFormat
+import com.example.dummysocial.Helpers.sendImageAsFile
 import com.example.dummysocial.Model.Post.Data
 import com.example.dummysocial.Navigation.ACtivityNavigation.navigateToUserDetailsActivity
 import com.example.dummysocial.R
@@ -130,7 +131,7 @@ private fun getPostAdapter(response: Data) {
                     )
                 }
 
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { sendImageAsFile(context, response.image) }) {
                     Icon(
                         painterResource(R.drawable.share),
                         contentDescription = "share",
