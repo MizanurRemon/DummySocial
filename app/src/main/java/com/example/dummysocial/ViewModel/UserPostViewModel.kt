@@ -3,6 +3,7 @@ package com.example.dummysocial.ViewModel
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dummysocial.Repository.MainRepository
@@ -16,16 +17,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserPostViewModel @Inject
-constructor(private val mainRepository: MainRepository) : ViewModel() {
+constructor(private val mainRepository: MainRepository, savedStateHandle: SavedStateHandle) :
+    ViewModel() {
 
     val response: MutableState<ApiState> = mutableStateOf(ApiState.Empty)
 
     init {
 
-        //        val id: String? = savedStateHandle["userid"]
-        val id = "60d0fe4f5311236168a109d1"
+        val id: String? = savedStateHandle["userid"]
+        //val id = "60d0fe4f5311236168a109d1"
         Log.d("dataxx", "id: ${id.toString()}")
-        getUserPosts(id)
+        getUserPosts(id.toString())
     }
 
     fun getUserPosts(id: String) = viewModelScope.launch {

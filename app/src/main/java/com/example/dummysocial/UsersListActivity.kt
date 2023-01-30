@@ -1,6 +1,7 @@
 package com.example.dummysocial
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -29,6 +30,7 @@ import coil.compose.rememberImagePainter
 import com.example.dummysocial.Model.User.User_data_response
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.MyCircularProgress
+import com.example.dummysocial.View.UserDetailsActivity
 import com.example.dummysocial.ViewModel.UserViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -112,13 +114,18 @@ class UsersListActivity : ComponentActivity() {
                 .fillMaxWidth()
                 .clickable {
                     //ShowToast(context, "kj")
-                    Toast
-                        .makeText(
-                            context,
-                            "You have tapped on ${response.firstName.toString()}",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
+//                    Toast
+//                        .makeText(
+//                            context,
+//                            "You have tapped on ${response.firstName.toString()}",
+//                            Toast.LENGTH_SHORT
+//                        )
+//                        .show()
+
+                    val intent = Intent(context, UserDetailsActivity::class.java)
+                    intent.putExtra("userid", response.id)
+                    startActivity(intent)
+
                 },
             elevation = 1.dp,
             shape = RoundedCornerShape(4.dp)

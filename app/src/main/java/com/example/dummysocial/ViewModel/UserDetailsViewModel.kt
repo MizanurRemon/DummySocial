@@ -24,8 +24,8 @@ class UserDetailsViewModel @Inject constructor(
     val response: MutableState<ApiState> = mutableStateOf(ApiState.Empty)
 
     init {
-//        val id: String? = savedStateHandle["userid"]
-        val id = "60d0fe4f5311236168a109d1"
+        val id: String? = savedStateHandle["userid"]
+        //val id = "60d0fe4f5311236168a109d1"
         Log.d("dataxx", "id: ${id.toString()}")
         getUserDetails(id.toString())
     }

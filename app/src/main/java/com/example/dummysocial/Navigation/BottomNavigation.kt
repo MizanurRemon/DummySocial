@@ -24,7 +24,7 @@ fun BottomNavigationBar(navController: NavController) {
     val items = listOf(
         NavigationItem.HomeScreen,
         NavigationItem.SearchScreen,
-        NavigationItem.ProfileScreen
+        //NavigationItem.ProfileScreen
     )
     BottomNavigation(
         backgroundColor = colorResource(id = R.color.default_color),

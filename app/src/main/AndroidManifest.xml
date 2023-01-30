@@ -19,6 +19,15 @@
         tools:targetApi="31">
 
         <activity
+            android:name=".View.UserDetailsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_user_details"
+            android:theme="@style/Theme.DummySocial">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".View.PostDetailsActivity"
             android:exported="false"
             android:label="@string/title_activity_navigation"
