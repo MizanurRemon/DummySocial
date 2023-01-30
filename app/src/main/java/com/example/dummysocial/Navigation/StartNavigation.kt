@@ -11,6 +11,7 @@ import com.example.dummysocial.Screen.ProfileScreen
 import com.example.dummysocial.Screen.SearchScreen
 import com.example.dummysocial.ViewModel.PostViewModel
 import com.example.dummysocial.ViewModel.UserDetailsViewModel
+import com.example.dummysocial.ViewModel.UserPostViewModel
 
 @Composable
 fun StartNavigation(
@@ -18,7 +19,8 @@ fun StartNavigation(
     navController: NavHostController,
     postViewModel: PostViewModel,
     networkStateViewModel: NetworkStateViewModel,
-    userDetailsViewModel: UserDetailsViewModel
+    userDetailsViewModel: UserDetailsViewModel,
+    userPostViewModel: UserPostViewModel
 ) {
     //var navController = rememberNavController()
     NavHost(navController = navController, startDestination = NavigationItem.HomeScreen.route) {
@@ -32,7 +34,7 @@ fun StartNavigation(
 
 
         composable(NavigationItem.ProfileScreen.route) {
-            ProfileScreen(context, userDetailsViewModel)
+            ProfileScreen(context, userDetailsViewModel, userPostViewModel)
         }
     }
 }

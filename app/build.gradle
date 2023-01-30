@@ -26,6 +26,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "Dummy Social.apk"
+                }
+            }
         }
     }
     compileOptions {
@@ -137,5 +143,11 @@ dependencies {
 
     //lottie
     implementation ("com.airbnb.android:lottie-compose:5.2.0")
+
+    
+    //viewpager
+    // Paging Compose
+    implementation "com.google.accompanist:accompanist-pager:0.13.0"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.13.0"
 
 }

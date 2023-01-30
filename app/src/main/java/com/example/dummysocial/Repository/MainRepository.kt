@@ -46,4 +46,11 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
         Log.d("dataxx", "POST Comment:: ${response.toString()}")
         emit(response)
     }.flowOn(Dispatchers.IO)
+
+
+    fun getUserPosts(id: String): Flow<Post_response> = flow {
+        val response = apiServicesImplementation.getUserPosts(id)
+        Log.d("dataxx", "POST USER:: ${response.toString()}")
+        emit(response)
+    }.flowOn(Dispatchers.IO)
 }

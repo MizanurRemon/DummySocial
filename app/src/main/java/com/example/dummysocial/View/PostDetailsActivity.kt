@@ -13,7 +13,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -33,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +73,6 @@ class PostDetailsActivity : ComponentActivity() {
 
     var height: Int = 0
     var width: Int = 0
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -205,6 +207,8 @@ class PostDetailsActivity : ComponentActivity() {
                 modifier = Modifier.padding(start = 10.dp, end = 10.dp)
             )
 
+            getTags(response.tags)
+
             Box(modifier = Modifier.size(ScreenSize.width().dp, 200.dp)) {
                 Image(
                     painter = rememberImagePainter(response.image),
@@ -263,6 +267,35 @@ class PostDetailsActivity : ComponentActivity() {
             )
 
 
+        }
+    }
+
+    @Composable
+    private fun getTags(tags: List<String>) {
+        Log.d("dataxx", "tags:: " + tags[0].toString())
+        val context = LocalContext.current
+        var cardColor = if (isNightMode(context)) R.color.night_card else R.color.LightGrey
+        LazyRow(modifier = Modifier.padding(start = 5.dp, end = 5.dp)) {
+            itemsIndexed(tags) { index, item ->
+                Card(
+                    backgroundColor = colorResource(id = cardColor),
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.padding(5.dp)
+                ) {
+                    Text(
+                        text = item,
+                        style = TextStyle(fontSize = 10.sp),
+                        modifier = Modifier.padding(
+                            start = 10.dp,
+                            end = 10.dp,
+                            top = 5.dp,
+                            bottom = 5.dp
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 

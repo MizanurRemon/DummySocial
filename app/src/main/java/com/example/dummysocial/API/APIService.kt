@@ -46,5 +46,12 @@ interface APIService {
     suspend fun getPostComment(
         @Path("id") id: String
     ): PostComment_response
+
+
+    @Headers("app-id:63cd111ff805cea1c4e8e6a3")
+    @GET("user/{id}/post/")
+    suspend fun getUserPosts(
+        @Path("id") id: String
+    ): Post_response
 }
 
