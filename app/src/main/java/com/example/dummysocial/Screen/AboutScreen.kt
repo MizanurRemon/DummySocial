@@ -40,7 +40,7 @@ fun AboutScreen(response: User_details_response){
                 Text(text = address, style = TextStyle(fontSize = 12.sp))
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Top) {
                 Icon(
                     painterResource(id = R.drawable.location),
                     modifier = Modifier.size(16.dp),

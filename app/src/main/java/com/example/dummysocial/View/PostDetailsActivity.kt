@@ -1,15 +1,16 @@
 package com.example.dummysocial.View
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,11 +20,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,32 +32,26 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.example.dummysocial.Helpers.changeDateFormat
 import com.example.dummysocial.Helpers.isNightMode
 import com.example.dummysocial.Model.PostComment.Data
-import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
+import com.example.dummysocial.Navigation.ACtivityNavigation.navigateToUserDetailsActivity
 import com.example.dummysocial.Network.checkConnection
 import com.example.dummysocial.R
 import com.example.dummysocial.Utils.*
 
 import com.example.dummysocial.ViewModel.PostCommentsViewModel
 import com.example.dummysocial.ViewModel.PostDetailsViewModel
-import com.example.dummysocial.ViewModel.PostViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import kotlin.math.log
 
 
 @AndroidEntryPoint
@@ -153,6 +145,7 @@ class PostDetailsActivity : ComponentActivity() {
 
     @Composable
     private fun getData(response: PostDetails_response) {
+        val context = LocalContext.current
         var dialogState by remember {
             mutableStateOf(false)
         }
@@ -179,7 +172,10 @@ class PostDetailsActivity : ComponentActivity() {
                         .size(30.dp, 30.dp)
                         .clip(CircleShape)                       // clip to the circle shape
                         .border(1.dp, Color.Gray, CircleShape)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .clickable {
+                            navigateToUserDetailsActivity(response.owner.id, context)
+                        },
                     contentScale = ContentScale.Crop,
                     alignment = Alignment.Center
                 )
@@ -188,6 +184,10 @@ class PostDetailsActivity : ComponentActivity() {
                     Text(
                         text = "${response.owner.firstName} ${response.owner.lastName}",
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            navigateToUserDetailsActivity(response.owner.id, context)
+                        }
                         //color = Color.Black
                     )
 
@@ -331,7 +331,7 @@ class PostDetailsActivity : ComponentActivity() {
     @Composable
     private fun getCommentAdapter(response: Data) {
 
-
+        val context = LocalContext.current
         val cardColor =
             if (isNightMode(context = LocalContext.current)) R.color.status_color else R.color.Azure
 
@@ -341,17 +341,24 @@ class PostDetailsActivity : ComponentActivity() {
             //verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Image(
-                painter = rememberImagePainter(response.owner.picture),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp, 30.dp)
-                    .clip(CircleShape)                       // clip to the circle shape
-                    .border(1.dp, Color.Gray, CircleShape)
-                    .fillMaxSize(),
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.Center
-            )
+            Box(modifier = Modifier.padding(top = (Constants.DEFAULTPADDING / 2).dp)) {
+                Image(
+                    painter = rememberImagePainter(response.owner.picture),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp, 30.dp)
+                        .clip(CircleShape)                       // clip to the circle shape
+                        .border(1.dp, Color.Gray, CircleShape)
+                        .fillMaxSize()
+                        .clickable {
+                            navigateToUserDetailsActivity(response.owner.id, context)
+                        },
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center
+                )
+            }
+
+
 
             Card(
                 //modifier = Modifier.fillMaxWidth(),
@@ -359,11 +366,22 @@ class PostDetailsActivity : ComponentActivity() {
                     id = cardColor
                 )
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
+                Column(
+                    modifier = Modifier.padding(
+                        start = Constants.DEFAULTPADDING.dp,
+                        end = Constants.DEFAULTPADDING.dp,
+                        bottom = (Constants.DEFAULTPADDING / 2).dp,
+                        top = (Constants.DEFAULTPADDING / 2).dp
+                    )
+                ) {
                     Text(
                         text = "${response.owner.firstName} ${response.owner.lastName}",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            //ShowToast.successToast(LocalContext.current, "")
+                            navigateToUserDetailsActivity(response.owner.id, context)
+                        }
                         //color = Color.Black
                     )
 
@@ -379,6 +397,8 @@ class PostDetailsActivity : ComponentActivity() {
 
 
     }
+
+
 
     @Composable
     private fun largeImageDialog(

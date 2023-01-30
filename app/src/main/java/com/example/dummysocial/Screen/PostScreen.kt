@@ -21,11 +21,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.dummysocial.Helpers.changeDateFormat
 import com.example.dummysocial.Model.Post.Data
+import com.example.dummysocial.Navigation.ACtivityNavigation.navigateToUserDetailsActivity
 import com.example.dummysocial.R
 import com.example.dummysocial.Utils.ScreenSize
 import com.example.dummysocial.View.PostDetailsActivity
@@ -71,7 +73,10 @@ private fun getPostAdapter(response: Data) {
                         .size(30.dp, 30.dp)
                         .clip(CircleShape)                       // clip to the circle shape
                         .border(1.dp, Color.Gray, CircleShape)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .clickable {
+                            navigateToUserDetailsActivity(response.owner.id, context)
+                        },
                     contentScale = ContentScale.Crop,
                     alignment = Alignment.Center
                 )
@@ -80,6 +85,10 @@ private fun getPostAdapter(response: Data) {
                     Text(
                         text = "${response.owner.firstName} ${response.owner.lastName}",
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            navigateToUserDetailsActivity(response.owner.id, context)
+                        }
                         //color = Color.Black
                     )
 

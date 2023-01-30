@@ -26,7 +26,7 @@ class UserDetailsViewModel @Inject constructor(
     init {
         val id: String? = savedStateHandle["userid"]
         //val id = "60d0fe4f5311236168a109d1"
-        Log.d("dataxx", "id: ${id.toString()}")
+        Log.d("dataxx", "userid: ${id.toString()}")
         getUserDetails(id.toString())
     }
 
