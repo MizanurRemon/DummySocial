@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.airbnb.lottie.compose.*
 
@@ -40,24 +41,21 @@ fun SearchScreen(context: Context, tagViewModel: TagViewModel) {
         is ApiState.SuccessTags -> {
 
 
-//            result.data.data.forEach(
-//                tagList.add(result.data.data[it])
-//            )
-
-//            tagList.clear()
-//            tagList.addAll(result.data.data)
-
-            //Log.d("dataxx", "getTagslist: ${tagList.size.toString()}")
-
-            for (i in 0 until 5){
-                //Log.d("dataxx", "getTagslist: ${result.data.data[i].toString()}")
-                tagList.add(result.data.data[i])
-            }
+            tagList.clear()
+            tagList.addAll(result.data.data)
 
 
-            for (i in 0 until 5){
-                Log.d("dataxx", "getTagslist: ${tagList[4].toString()}")
-            }
+//            for(i in 0 until 5){
+//                try {
+//                    Log.d("dataxx", "getTagslist: ${tagList[i].toString()}")
+//                }catch (e:Exception){
+//
+//                }
+//            }
+
+
+            //Log.d("dataxx", "getTagslist: ${tagList[4].toString()}")
+
         }
         is ApiState.Failure -> {
             Log.d("dataxx", "getTags: ${result.msg.toString()}")
@@ -111,20 +109,22 @@ fun SearchScreen(context: Context, tagViewModel: TagViewModel) {
                     onValueChange = {
                         text = it
 
-                        Log.d("dataxx", "SearchScreen: ${tagList[0].toString()}")
-
-                        /*var setList: MutableSet<String> = HashSet()
+                        var setList: MutableSet<String> = HashSet()
                         for (i in 0 until tagList.size) {
-                            if (tagList[i].lowercase(Locale.ROOT)
-                                    .contains(it.lowercase(Locale.ROOT))
-                            ) {
-                                setList.add(tagList[i])
+                            try {
+                                if (tagList[i].lowercase(Locale.ROOT)
+                                        .contains(it.lowercase(Locale.ROOT))
+                                ) {
+                                    setList.add(tagList[i])
+                                }
+                            } catch (e: Exception) {
+
                             }
                         }
                         searchList.clear()
-                        searchList.addAll(setList)*/
+                        searchList.addAll(setList)
 
-                        //Log.d("dataxx", "SearchScreen: ${searchList.size.toString()}")
+                        Log.d("dataxx", "SearchScreen: ${searchList.size.toString()}")
                         //setDataInToList(searchUserList)
                         //ShowToast.errorToast(context, text.toString())
                     })
@@ -147,6 +147,23 @@ fun SearchScreen(context: Context, tagViewModel: TagViewModel) {
                 }
             }
         }
+
+//        DropdownMenu(
+//            expanded = searchList.isNotEmpty(),
+//            onDismissRequest = { },
+//            modifier = Modifier.fillMaxWidth(),
+//            // This line here will accomplish what you want
+//            properties = PopupProperties(focusable = false)
+//        ) {
+//            searchList.forEach { label ->
+//                DropdownMenuItem(onClick = { ShowToast.successToast(context, label) }) {
+//
+//                    Text(text = label)
+//
+//                }
+//
+//            }
+//        }
 
     }
 }
