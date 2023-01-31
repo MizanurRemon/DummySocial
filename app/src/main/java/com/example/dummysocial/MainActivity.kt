@@ -48,6 +48,7 @@ import com.example.dummysocial.Permissions.MultiplePermissions
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.PostViewModel
+import com.example.dummysocial.ViewModel.TagViewModel
 import com.example.dummysocial.ViewModel.UserDetailsViewModel
 import com.example.dummysocial.ViewModel.UserPostViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
@@ -65,6 +66,7 @@ class MainActivity : ComponentActivity() {
     private val postViewModel: PostViewModel by viewModels()
     private val networkStateViewModel: NetworkStateViewModel by viewModels()
     private val userPostViewModel: UserPostViewModel by viewModels()
+    private val tagViewModel: TagViewModel by viewModels()
 
     var height: Int = 0
     var width: Int = 0
@@ -190,7 +192,8 @@ class MainActivity : ComponentActivity() {
                     postViewModel,
                     networkStateViewModel,
                     userDetailsViewModel,
-                    userPostViewModel
+                    userPostViewModel,
+                    tagViewModel
                 )
 
             }

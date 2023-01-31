@@ -3,6 +3,7 @@ package com.example.dummysocial.API
 import com.example.dummysocial.Model.Post.Post_response
 import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
+import com.example.dummysocial.Model.Tags.Tag_response
 import com.example.dummysocial.Model.User.User_response
 import com.example.dummysocial.Model.UserDetails.User_details_response
 import javax.inject.Inject
@@ -27,4 +28,6 @@ constructor(private val apiService: APIService) {
 
     suspend fun getPostComment(id: String): PostComment_response =
         apiService.getPostComment(id)
+
+    suspend fun getTags(): Tag_response = apiService.getTags()
 }

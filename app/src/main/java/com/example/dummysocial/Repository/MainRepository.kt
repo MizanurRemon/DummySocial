@@ -5,6 +5,7 @@ import com.example.dummysocial.API.APIServicesImplementation
 import com.example.dummysocial.Model.Post.Post_response
 import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
+import com.example.dummysocial.Model.Tags.Tag_response
 import com.example.dummysocial.Model.User.User_response
 import com.example.dummysocial.Model.UserDetails.User_details_response
 import kotlinx.coroutines.Dispatchers
@@ -54,4 +55,11 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
         Log.d("dataxx", "POST USER:: ${response.toString()}")
         emit(response)
     }.flowOn(Dispatchers.IO)
+
+
+    fun getTags(): Flow<Tag_response> = flow {
+        val response = apiServicesImplementation.getTags()
+        Log.d("dataxx", "getTags: ${response.toString()}")
+        emit(response)
+    }
 }

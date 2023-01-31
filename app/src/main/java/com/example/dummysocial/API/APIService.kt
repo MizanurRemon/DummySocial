@@ -3,6 +3,7 @@ package com.example.dummysocial.API
 import com.example.dummysocial.Model.Post.Post_response
 import com.example.dummysocial.Model.PostComment.PostComment_response
 import com.example.dummysocial.Model.PostDetails.PostDetails_response
+import com.example.dummysocial.Model.Tags.Tag_response
 import com.example.dummysocial.Model.User.User_response
 import com.example.dummysocial.Model.UserDetails.User_details_response
 import retrofit2.http.GET
@@ -53,5 +54,11 @@ interface APIService {
     suspend fun getUserPosts(
         @Path("id") id: String
     ): Post_response
+
+
+    @Headers("app-id:63cd111ff805cea1c4e8e6a3")
+    @GET("tag/")
+    suspend fun getTags(
+    ): Tag_response
 }
 
