@@ -61,7 +61,7 @@ fun sendImageAsFile(context: Context, imgUrl: String) {
             )
             val imgBitmapUri = Uri.parse(imgBitmapPath)
 
-            Log.d("dataxx", "sendImageAsFilePath: ${imgBitmapUri.getPath()}")
+            Log.d("dataxx", "sendImageAsFilePath: ${imgBitmapUri.path}")
 
 
             // share Intent
@@ -99,10 +99,10 @@ fun sendImageAsFile(context: Context, imgUrl: String) {
 //    Picasso.get().load(imgUrl).into(object : com.squareup.picasso.Target {
 //        override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
 //            Log.d("dataxx", "onBitmapLoaded: ")
-////            val intent = Intent(Intent.ACTION_SEND)
-////            intent.type = "image/*"
-////            intent.putExtra(Intent.EXTRA_STREAM, getBitmapFromView(bitmap, context))
-////            context.startActivity(Intent.createChooser(intent, "Share Image"))
+//            val intent = Intent(Intent.ACTION_SEND)
+//            intent.type = "image/*"
+//            intent.putExtra(Intent.EXTRA_STREAM, getBitmapFromView(bitmap, context))
+//            context.startActivity(Intent.createChooser(intent, "Share Image"))
 //
 //            val shareIntent = Intent(Intent.ACTION_SEND)
 //            shareIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
