@@ -1,5 +1,6 @@
 package com.example.dummysocial.Navigation
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,17 +12,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.dummysocial.Helpers.isNightMode
 import com.example.dummysocial.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -36,12 +36,18 @@ fun NavigationDrawer(
         NavigationItem.HomeScreen,
         NavigationItem.SearchScreen
     )
+
+    val context: Context = LocalContext.current
+
+    val bgColor =
+        if (isNightMode(context = context)) colorResource(id = R.color.night_card) else colorResource(id = R.color.white)
+
     Column(
         modifier = Modifier
-            .background(colorResource(id = R.color.white))
+            .background(bgColor)
     ) {
 
-        drawerHeader()
+        drawerHeader(context)
 
         Spacer(
             modifier = Modifier
@@ -79,12 +85,16 @@ fun NavigationDrawer(
 }
 
 @Composable
-fun drawerHeader() {
+fun drawerHeader(context: Context) {
+
+    val context = LocalContext.current
+    val headerColor =
+        if (isNightMode(context = context)) colorResource(id = R.color.default_color) else colorResource(id = R.color.DarkOrange)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .background(colorResource(id = R.color.Orange))
+            .background(headerColor)
     ) {
         Image(
             painter = painterResource(id = R.drawable.logo),

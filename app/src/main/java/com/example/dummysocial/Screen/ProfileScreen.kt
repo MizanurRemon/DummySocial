@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberImagePainter
 import com.example.dummysocial.Helpers.isNightMode
 import com.example.dummysocial.Model.UserDetails.User_details_response
@@ -78,47 +79,65 @@ fun MainUI(response: User_details_response, userPostViewModel: UserPostViewModel
             .padding(10.dp)
 
     ) {
-        Card(
-            backgroundColor = colorResource(id = topCardColor),
-            elevation = 5.dp,
-            shape = RoundedCornerShape(10.dp),
+
+        ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
-
+                .clip(RoundedCornerShape(10.dp))
+                .background(colorResource(id = topCardColor))
         ) {
 
-            Row(
-                modifier = Modifier.padding(20.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = rememberImagePainter(response.picture.toString()),
-                    modifier = Modifier
-                        .size(80.dp, 80.dp)
-                        .clip(CircleShape)                       // clip to the circle shape
-                        .fillMaxSize()
-                        .background(color = colorResource(id = R.color.purple_200)),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "profileImage",
-                    alignment = Alignment.Center
+            val (profileImage, topText, bottomText) = createRefs()
+            Image(
+                painter = rememberImagePainter(response.picture.toString()),
+                modifier = Modifier
+                    .size(80.dp, 80.dp)
+                    .clip(CircleShape)                       // clip to the circle shape
+                    .fillMaxSize()
+                    .background(color = colorResource(id = R.color.purple_200))
+                    .constrainAs(profileImage) {
+                        start.linkTo(parent.start, margin = 10.dp)
+                        top.linkTo(parent.top, margin = 10.dp)
+                        bottom.linkTo(parent.bottom, margin = 10.dp)
+                    },
+                contentScale = ContentScale.Crop,
+                contentDescription = "profileImage",
+                alignment = Alignment.Center
 
-                )
-
-                Spacer(Modifier.weight(1f))
+            )
 
 
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(text = "Hi, Its")
+            Text(text = "Hi, Its", modifier = Modifier.constrainAs(topText) {
+                end.linkTo(parent.end, margin = 10.dp)
+                top.linkTo(parent.top, margin = 10.dp)
+                bottom.linkTo(bottomText.top, margin = 5.dp)
 
-                    Text(
-                        text = "${response.firstName.toString()}",
-                        style = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold)
-                    )
+            })
+
+            Text(
+                text = "${response.firstName.toString()}",
+                style = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold),
+                modifier = Modifier.constrainAs(bottomText) {
+                    top.linkTo(topText.bottom, margin = 5.dp)
+                    end.linkTo(parent.end, margin = 10.dp)
+                    bottom.linkTo(parent.bottom, margin = 10.dp)
                 }
-
-            }
+            )
         }
+//        Card(
+//            backgroundColor = colorResource(id = topCardColor),
+//            elevation = 0.dp,
+//            shape = RoundedCornerShape(10.dp),
+//            modifier = Modifier
+//                .fillMaxWidth()
+//
+//        ) {
+//
+//
+//
+//
+//
+//        }
 
         val pagerState = rememberPagerState(2)
 

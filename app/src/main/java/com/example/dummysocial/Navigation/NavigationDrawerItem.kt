@@ -14,11 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.dummysocial.Helpers.isNightMode
 import com.example.dummysocial.R
 
 @Composable
@@ -27,9 +29,14 @@ fun NavigationDrawerItem(
     selected: Boolean,
     onItemClick: (NavigationItem) -> Unit
 ) {
+
+    val context = LocalContext.current
     val background = if (selected) R.color.LightGrey else android.R.color.transparent
-    val textColor = if (selected) R.color.purple_200 else R.color.black
-    val iconColor = if (selected) R.color.purple_200 else R.color.black
+    val textColor =
+        if (selected) R.color.purple_200 else if (isNightMode(context)) R.color.white else R.color.black
+
+
+    val iconColor = if (selected) R.color.purple_200 else if (isNightMode(context)) R.color.white else R.color.black
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
