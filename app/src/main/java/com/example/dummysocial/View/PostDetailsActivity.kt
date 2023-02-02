@@ -124,13 +124,13 @@ class PostDetailsActivity : ComponentActivity() {
     private fun loadPostDetails() {
         when (val result = postDetailsViewModel.response.value) {
             is ApiState.SuccessPostDetails -> {
-                Log.d("dataxx", "getPostDetsils ACT: ${result.data.text}")
+                Log.d("dataxx", "getPostDetails ACT: ${result.data.text}")
 
                 getData(result.data)
             }
 
             is ApiState.Failure -> {
-                Log.d("dataxx", "getData: ${result.msg.toString()}")
+                Log.d("dataxx", "getPostDetails FAILURE: ${result.msg.toString()}")
             }
 
             ApiState.Loading -> {

@@ -4,58 +4,38 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
 import android.util.DisplayMetrics
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import coil.compose.rememberImagePainter
 import com.example.dummysocial.BottomNavigation.BottomNavigationBar
-import com.example.dummysocial.Model.Post.Data
 import com.example.dummysocial.Navigation.NavigationDrawer
 import com.example.dummysocial.Navigation.StartNavigation
 import com.example.dummysocial.Network.NetworkStateViewModel
 import com.example.dummysocial.Network.checkConnection
 import com.example.dummysocial.Permissions.MultiplePermissions
-import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.ShowToast
-import com.example.dummysocial.ViewModel.PostViewModel
-import com.example.dummysocial.ViewModel.TagViewModel
-import com.example.dummysocial.ViewModel.UserDetailsViewModel
-import com.example.dummysocial.ViewModel.UserPostViewModel
+import com.example.dummysocial.ViewModel.*
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -67,6 +47,7 @@ class MainActivity : ComponentActivity() {
     private val networkStateViewModel: NetworkStateViewModel by viewModels()
     private val userPostViewModel: UserPostViewModel by viewModels()
     private val tagViewModel: TagViewModel by viewModels()
+    private val postByTagViewModel: PostByTagViewModel by viewModels()
 
     var height: Int = 0
     var width: Int = 0
@@ -193,7 +174,8 @@ class MainActivity : ComponentActivity() {
                     networkStateViewModel,
                     userDetailsViewModel,
                     userPostViewModel,
-                    tagViewModel
+                    tagViewModel,
+                    postByTagViewModel
                 )
 
             }

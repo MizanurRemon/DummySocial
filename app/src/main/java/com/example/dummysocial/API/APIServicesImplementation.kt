@@ -30,4 +30,6 @@ constructor(private val apiService: APIService) {
         apiService.getPostComment(id)
 
     suspend fun getTags(): Tag_response = apiService.getTags()
+
+    suspend fun getPostByTag(tag: String): Post_response = apiService.getPostByTag(tag)
 }

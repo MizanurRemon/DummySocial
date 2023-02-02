@@ -62,4 +62,10 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
         Log.d("dataxx", "getTags: ${response.toString()}")
         emit(response)
     }
+
+    fun getPostByTag(tag: String): Flow<Post_response> = flow {
+        val response = apiServicesImplementation.getPostByTag(tag)
+        Log.d("dataxx", "getPostByTags: ${response.toString()}")
+        emit(response)
+    }
 }

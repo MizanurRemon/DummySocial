@@ -60,5 +60,11 @@ interface APIService {
     @GET("tag/")
     suspend fun getTags(
     ): Tag_response
+
+    @Headers("app-id:63cd111ff805cea1c4e8e6a3")
+    @GET("tag/{tag}/post/")
+    suspend fun getPostByTag(
+        @Path("tag") tag: String
+    ): Post_response
 }
 
