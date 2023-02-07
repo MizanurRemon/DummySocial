@@ -5,18 +5,28 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Face
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.airbnb.lottie.compose.*
+import com.example.dummysocial.Adapter.UserAdapter
+import com.example.dummysocial.Helpers.ListState
 
 
 import com.example.dummysocial.R
@@ -26,6 +36,7 @@ import com.example.dummysocial.Utils.ScreenSize
 import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.PostByTagViewModel
 import com.example.dummysocial.ViewModel.TagViewModel
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
@@ -135,7 +146,7 @@ fun SearchScreen(
                                 searchList.value.addAll(setList)
                                 expanded = searchList.value.size < 20
 
-                                Log.d("dataxx", "SearchScreen: ${searchList.value.size.toString()}")
+                                //Log.d("dataxx", "SearchScreen: ${searchList.value.size.toString()}")
                             } else {
                                 expanded = false
                                 searchList.value.clear()
@@ -147,8 +158,9 @@ fun SearchScreen(
 
                     IconButton(
                         onClick = {
-                            ShowToast.successToast(context, searchText)
+                            //ShowToast.successToast(context, searchText)
                             postByTagViewModel.getPostByTag(searchText.trim())
+                            //searchData(postByTagViewModel, searchText.trim().toString())
                         },
                         modifier = Modifier
                             .size(50.dp)
@@ -196,30 +208,145 @@ fun SearchScreen(
                     }
                 }
             }
+
+
         }
 
-        when (val result = postByTagViewModel.response.value) {
-            is ApiState.SuccessPost -> {
-
-                PostScreen(result.data.data)
-
-            }
-
-            is ApiState.Failure -> {
-                Log.d("dataxx", "SEARCH FAILURE: ${result.msg.toString()}")
-            }
-
-            ApiState.Loading -> {
-                MyCircularProgress()
-            }
-
-            ApiState.Empty -> {
-
-            }
-        }
+        searchData(
+            postByTagViewModel = postByTagViewModel,
+            searchText = searchText.trim().toString()
+        )
 
 
     }
+}
+
+
+@Composable
+fun searchData(postByTagViewModel: PostByTagViewModel, searchText: String) {
+    val lazyColumnListState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val shouldStartPaginate = remember {
+        derivedStateOf {
+            postByTagViewModel.canPaginate && (lazyColumnListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                ?: -9) >= (lazyColumnListState.layoutInfo.totalItemsCount - 6)
+        }
+    }
+
+    val postList = postByTagViewModel.postList
+
+    LaunchedEffect(key1 = shouldStartPaginate.value) {
+        if (shouldStartPaginate.value && postByTagViewModel.listState == ListState.IDLE)
+            postByTagViewModel.getPostByTag(searchText)
+//            if (searchText.isEmpty()) {
+//                ShowToast.errorToast(context = context, "empty")
+//            } else {
+//                postByTagViewModel.getPostByTag(searchText)
+//            }
+    }
+
+    LazyColumn(state = lazyColumnListState) {
+        items(
+            items = postList,
+        ) { post ->
+            PostAdapter(response = post)
+        }
+
+        item(
+            key = postByTagViewModel.listState,
+        ) {
+            when (postByTagViewModel.listState) {
+                ListState.LOADING -> {
+                    Column(
+                        modifier = Modifier
+                            .fillParentMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(8.dp),
+                            text = "Loading", fontSize = 10.sp
+                        )
+
+                        CircularProgressIndicator(
+                            color = Color.Black,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(5.dp),
+                            strokeWidth = 1.dp
+                        )
+                    }
+                }
+                ListState.PAGINATING -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(8.dp),
+                            text = "Refreshing", fontSize = 10.sp
+                        )
+                        CircularProgressIndicator(
+                            color = Color.Black,
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 1.dp
+                        )
+                    }
+                }
+                ListState.PAGINATION_EXHAUST -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 6.dp, vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(imageVector = Icons.Rounded.Face, contentDescription = "")
+
+                        Text(text = "Nothing left.")
+
+                        TextButton(
+                            modifier = Modifier
+                                .padding(top = 8.dp),
+                            elevation = ButtonDefaults.elevation(0.dp),
+                            onClick = {
+                                coroutineScope.launch {
+                                    lazyColumnListState.animateScrollToItem(0)
+                                }
+                            },
+                            content = {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.KeyboardArrowUp,
+                                        contentDescription = ""
+                                    )
+
+                                    Text(text = "Back to Top")
+
+                                    Icon(
+                                        imageVector = Icons.Rounded.KeyboardArrowUp,
+                                        contentDescription = ""
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+                else -> {}
+            }
+        }
+
+    }
+
 }
 
 

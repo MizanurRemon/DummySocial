@@ -52,7 +52,9 @@ interface APIService {
     @Headers("app-id:63cd111ff805cea1c4e8e6a3")
     @GET("user/{id}/post/")
     suspend fun getUserPosts(
-        @Path("id") id: String
+        @Path("id") id: String,
+        @Query("limit") limit: String,
+        @Query("page") page: String
     ): Post_response
 
 
@@ -64,7 +66,9 @@ interface APIService {
     @Headers("app-id:63cd111ff805cea1c4e8e6a3")
     @GET("tag/{tag}/post/")
     suspend fun getPostByTag(
-        @Path("tag") tag: String
+        @Path("tag") tag: String,
+        @Query("limit") limit: String,
+        @Query("page") page: String
     ): Post_response
 }
 

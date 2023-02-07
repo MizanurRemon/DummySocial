@@ -1,11 +1,12 @@
 package com.example.dummysocial.ViewModel
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dummysocial.Helpers.ListState
+import com.example.dummysocial.Model.Post.Data
 import com.example.dummysocial.Repository.MainRepository
 import com.example.dummysocial.Utils.ApiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,24 +21,52 @@ class UserPostViewModel @Inject
 constructor(private val mainRepository: MainRepository, savedStateHandle: SavedStateHandle) :
     ViewModel() {
 
-    val response: MutableState<ApiState> = mutableStateOf(ApiState.Empty)
+    val postList = mutableStateListOf<Data>()
+    private var page by mutableStateOf(0)
+    var canPaginate by mutableStateOf(false)
+    var listState by mutableStateOf(ListState.IDLE)
+    val id: String? = savedStateHandle["userid"]
 
     init {
 
-        val id: String? = savedStateHandle["userid"]
+
         //val id = "60d0fe4f5311236168a109d1"
         Log.d("dataxx", "userid: ${id.toString()}")
-        getUserPosts(id.toString())
+        getUserPosts()
     }
 
-    fun getUserPosts(id: String) = viewModelScope.launch {
-        mainRepository.getUserPosts(id).onStart {
-            response.value = ApiState.Loading
-        }.catch {
-            response.value = ApiState.Failure(it)
-        }.collect {
-            Log.d("dataxx", "POSTS VM:: ${response.toString()}")
-            response.value = ApiState.SuccessPost(it)
+    fun getUserPosts() = viewModelScope.launch {
+        if (page == 0 || (page != 0 && canPaginate) && listState == ListState.IDLE) {
+            listState = if (page == 0) ListState.LOADING else ListState.PAGINATING
+
+            if (id != null) {
+                mainRepository.getUserPosts(id, "10", page.toString()).collect() {
+                    if (it.data.isNotEmpty()) {
+                        canPaginate = it.data.size == 10
+
+                        if (page == 0) {
+                            postList.clear()
+                            postList.addAll(it.data)
+                        } else {
+                            postList.addAll(it.data)
+                        }
+
+                        listState = ListState.IDLE
+
+                        if (canPaginate)
+                            page++
+                    } else {
+                        listState = if (page == 0) ListState.ERROR else ListState.PAGINATION_EXHAUST
+                    }
+                }
+            }
         }
+    }
+
+    override fun onCleared() {
+        page = 0
+        listState = ListState.IDLE
+        canPaginate = false
+        super.onCleared()
     }
 }

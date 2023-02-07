@@ -1,24 +1,20 @@
 package com.example.dummysocial
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Face
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -26,14 +22,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
-import com.example.dummysocial.Model.User.User_data_response
-import com.example.dummysocial.Utils.ApiState
-import com.example.dummysocial.Utils.MyCircularProgress
-import com.example.dummysocial.View.UserDetailsActivity
+import com.example.dummysocial.Adapter.UserAdapter
+import com.example.dummysocial.Helpers.ListState
 import com.example.dummysocial.ViewModel.UserViewModel
 import com.example.dummysocial.ui.theme.DummySocialTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -80,77 +74,122 @@ class UsersListActivity : ComponentActivity() {
 
     @Composable
     fun getData(userViewModel: UserViewModel) {
-        when (val result = userViewModel.response.value) {
-            is ApiState.SuccessUserList -> {
-                Log.d("dataxx", "getData: ${result.data.total.toString()}")
-                LazyColumn() {
-                    items(result.data.data) { response ->
-                        getAdapter(response)
+        val lazyColumnListState = rememberLazyListState()
+        val coroutineScope = rememberCoroutineScope()
+
+        val shouldStartPaginate = remember {
+            derivedStateOf {
+                userViewModel.canPaginate && (lazyColumnListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                    ?: -9) >= (lazyColumnListState.layoutInfo.totalItemsCount - 6)
+            }
+        }
+
+        val userList = userViewModel.userList
+
+        LaunchedEffect(key1 = shouldStartPaginate.value) {
+            if (shouldStartPaginate.value && userViewModel.listState == ListState.IDLE)
+                userViewModel.getUser()
+        }
+
+        LazyColumn(state = lazyColumnListState) {
+            items(
+                items = userList,
+            ) { user ->
+                UserAdapter(LocalContext.current, response = user)
+            }
+
+            item(
+                key = userViewModel.listState,
+            ) {
+                when (userViewModel.listState) {
+                    ListState.LOADING -> {
+                        Column(
+                            modifier = Modifier
+                                .fillParentMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .padding(8.dp),
+                                text = "Loading", fontSize = 10.sp
+                            )
+
+                            CircularProgressIndicator(
+                                color = Color.Black,
+                                modifier = Modifier.size(20.dp).padding(5.dp),
+                                strokeWidth = 1.dp
+                            )
+                        }
                     }
+                    ListState.PAGINATING -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .padding(8.dp),
+                                text = "Refreshing", fontSize = 10.sp
+                            )
+                            CircularProgressIndicator(
+                                color = Color.Black,
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 1.dp
+                            )
+                        }
+                    }
+                    ListState.PAGINATION_EXHAUST -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 6.dp, vertical = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Icon(imageVector = Icons.Rounded.Face, contentDescription = "")
+
+                            Text(text = "Nothing left.")
+
+                            TextButton(
+                                modifier = Modifier
+                                    .padding(top = 8.dp),
+                                elevation = ButtonDefaults.elevation(0.dp),
+                                onClick = {
+                                    coroutineScope.launch {
+                                        lazyColumnListState.animateScrollToItem(0)
+                                    }
+                                },
+                                content = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.KeyboardArrowUp,
+                                            contentDescription = ""
+                                        )
+
+                                        Text(text = "Back to Top")
+
+                                        Icon(
+                                            imageVector = Icons.Rounded.KeyboardArrowUp,
+                                            contentDescription = ""
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    else -> {}
                 }
             }
 
-            is ApiState.Failure -> {
-                Log.d("dataxx", "getData: ${result.msg.toString()}")
-            }
-
-            ApiState.Loading -> {
-                MyCircularProgress()
-            }
-
-            ApiState.Empty -> {
-
-            }
         }
     }
 
-
-    @Composable
-    fun getAdapter(response: User_data_response) {
-        val context: Context = LocalContext.current
-        Card(
-            modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth()
-                .clickable {
-                    //ShowToast(context, "kj")
-//                    Toast
-//                        .makeText(
-//                            context,
-//                            "You have tapped on ${response.firstName.toString()}",
-//                            Toast.LENGTH_SHORT
-//                        )
-//                        .show()
-
-                    val intent = Intent(context, UserDetailsActivity::class.java)
-                    intent.putExtra("userid", response.id)
-                    startActivity(intent)
-
-                },
-            elevation = 1.dp,
-            shape = RoundedCornerShape(4.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = rememberImagePainter(response.picture),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(50.dp))
-                )
-                Column(modifier = Modifier.padding(5.dp)) {
-                    Text(
-                        text = response.id.toString(), color = Color.Gray, fontSize = 10.sp,
-                    )
-                    Text(
-                        text = response.firstName.toString() + " " + response.lastName.toString(),
-                        fontSize = 14.sp,
-                    )
-                }
-            }
-        }
-    }
 
     @Preview(showBackground = true)
     @Composable

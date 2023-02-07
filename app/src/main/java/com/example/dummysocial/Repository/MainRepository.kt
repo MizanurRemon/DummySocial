@@ -32,7 +32,7 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
 
     fun getPosts(limit: String, page: String): Flow<Post_response> = flow {
         val response = apiServicesImplementation.getPosts(limit, page)
-        //Log.d("dataxx", "POSTS:: ${response.toString()}")
+        Log.d("dataxx", "POSTS:: ${response.toString()}")
         emit(response)
     }.flowOn(Dispatchers.IO)
 
@@ -50,8 +50,8 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
     }.flowOn(Dispatchers.IO)
 
 
-    fun getUserPosts(id: String): Flow<Post_response> = flow {
-        val response = apiServicesImplementation.getUserPosts(id)
+    fun getUserPosts(id: String, limit: String, page: String): Flow<Post_response> = flow {
+        val response = apiServicesImplementation.getUserPosts(id, limit, page)
         Log.d("dataxx", "POST USER:: ${response.toString()}")
         emit(response)
     }.flowOn(Dispatchers.IO)
@@ -63,8 +63,8 @@ constructor(private val apiServicesImplementation: APIServicesImplementation) {
         emit(response)
     }
 
-    fun getPostByTag(tag: String): Flow<Post_response> = flow {
-        val response = apiServicesImplementation.getPostByTag(tag)
+    fun getPostByTag(tag: String, limit: String, page: String): Flow<Post_response> = flow {
+        val response = apiServicesImplementation.getPostByTag(tag, limit, page)
         Log.d("dataxx", "getPostByTags: ${response.toString()}")
         emit(response)
     }

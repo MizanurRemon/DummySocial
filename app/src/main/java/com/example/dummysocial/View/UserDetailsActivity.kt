@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.dummysocial.Screen.ProfileScreen
 import com.example.dummysocial.ViewModel.UserDetailsViewModel
 import com.example.dummysocial.ViewModel.UserPostViewModel
@@ -33,8 +34,14 @@ class UserDetailsActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     //Greeting("Android")
+                    val navController = rememberNavController()
 
-                    ProfileScreen(context = LocalContext.current, userDetailsViewModel = userDetailsViewModel, userPostViewModel = userPostViewModel)
+                    ProfileScreen(
+                        context = LocalContext.current,
+                        navController = navController,
+                        userDetailsViewModel = userDetailsViewModel,
+                        userPostViewModel = userPostViewModel
+                    )
                 }
             }
         }

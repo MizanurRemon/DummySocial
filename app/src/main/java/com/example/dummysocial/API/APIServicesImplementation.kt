@@ -20,8 +20,8 @@ constructor(private val apiService: APIService) {
     suspend fun getPosts(limit: String, page: String): Post_response =
         apiService.getPosts(limit, page)
 
-    suspend fun getUserPosts(id: String): Post_response =
-        apiService.getUserPosts(id)
+    suspend fun getUserPosts(id: String, limit: String, page: String): Post_response =
+        apiService.getUserPosts(id, limit, page)
 
     suspend fun getPostDetails(id: String): PostDetails_response =
         apiService.getPostDetails(id)
@@ -31,5 +31,5 @@ constructor(private val apiService: APIService) {
 
     suspend fun getTags(): Tag_response = apiService.getTags()
 
-    suspend fun getPostByTag(tag: String): Post_response = apiService.getPostByTag(tag)
+    suspend fun getPostByTag(tag: String, limit: String, page: String): Post_response = apiService.getPostByTag(tag, limit, page)
 }

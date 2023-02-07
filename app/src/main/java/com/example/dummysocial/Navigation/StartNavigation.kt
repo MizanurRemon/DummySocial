@@ -34,7 +34,7 @@ fun StartNavigation(
 
 
         composable(NavigationItem.ProfileScreen.route) {
-            ProfileScreen(context, userDetailsViewModel, userPostViewModel)
+            ProfileScreen(context,navController, userDetailsViewModel, userPostViewModel)
         }
     }
 }
