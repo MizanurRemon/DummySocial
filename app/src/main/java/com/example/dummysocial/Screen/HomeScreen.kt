@@ -69,7 +69,6 @@ fun HomeScreen(postViewModel: PostViewModel, networkStateViewModel: NetworkState
                         )
 
                         CircularProgressIndicator(
-                            color = Color.Black,
                             modifier = Modifier.size(20.dp),
                             strokeWidth = 1.dp
                         )
@@ -88,7 +87,6 @@ fun HomeScreen(postViewModel: PostViewModel, networkStateViewModel: NetworkState
                             text = "Refreshing", fontSize = 10.sp
                         )
                         CircularProgressIndicator(
-                            color = Color.Black,
                             modifier = Modifier.size(20.dp),
                             strokeWidth = 1.dp
                         )
