@@ -62,7 +62,7 @@ fun ProfileScreen(
         when (val result = userDetailsViewModel.response.value) {
             is ApiState.SuccessUserDetails -> {
                 Log.d("dataxx", "getUser: ${result.data.toString()}")
-                MainUI(result.data, userPostViewModel, navController)
+                MainUI(result.data, userPostViewModel, navController, userDetailsViewModel)
             }
 
             is ApiState.Failure -> {
@@ -85,7 +85,8 @@ fun ProfileScreen(
 fun MainUI(
     response: User_details_response,
     userPostViewModel: UserPostViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    userDetailsViewModel: UserDetailsViewModel
 ) {
 
     val context = LocalContext.current
@@ -94,7 +95,7 @@ fun MainUI(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(top = 10.dp)
 
     ) {
 
@@ -111,6 +112,7 @@ fun MainUI(
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(start = 10.dp, end = 10.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(colorResource(id = topCardColor))
         ) {
@@ -142,15 +144,13 @@ fun MainUI(
 
             })
 
-            Text(
-                text = "${response.firstName.toString()}",
+            Text(text = "${response.firstName.toString()}",
                 style = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold),
                 modifier = Modifier.constrainAs(bottomText) {
                     top.linkTo(topText.bottom, margin = 5.dp)
                     end.linkTo(parent.end, margin = 10.dp)
                     bottom.linkTo(parent.bottom, margin = 10.dp)
-                }
-            )
+                })
         }
 //        Card(
 //            backgroundColor = colorResource(id = topCardColor),
@@ -170,14 +170,18 @@ fun MainUI(
         val pagerState = rememberPagerState(2)
 
         val list = listOf(
-            "Dashboard",
-            "About"
+            "Dashboard", "About"
         )
 
-
-        TextTabs(pagerState = pagerState, list)
-
-        TabsContent(pagerState = pagerState, response, userPostViewModel)
+        Box(
+            modifier = Modifier.padding(
+                start = 10.dp,
+                end = 10.dp
+            )
+        ) {
+            TextTabs(pagerState = pagerState, list)
+        }
+        TabsContent(pagerState = pagerState, response, userPostViewModel, userDetailsViewModel)
     }
 }
 
@@ -186,15 +190,15 @@ fun MainUI(
 fun TabsContent(
     pagerState: PagerState,
     response: User_details_response,
-    userPostViewModel: UserPostViewModel
+    userPostViewModel: UserPostViewModel,
+    userDetailsViewModel: UserDetailsViewModel
 ) {
     // on below line we are creating
     // horizontal pager for our tab layout.
     HorizontalPager(
-        state = pagerState, modifier =
-        Modifier.fillMaxSize()
+        state = pagerState, modifier = Modifier.fillMaxSize()
     ) { page ->
-        TabContentScreen(page, response, userPostViewModel)
+        TabContentScreen(page, response, userPostViewModel, userDetailsViewModel)
     }
 }
 
@@ -202,7 +206,8 @@ fun TabsContent(
 fun TabContentScreen(
     page: Int,
     response: User_details_response,
-    userPostViewModel: UserPostViewModel
+    userPostViewModel: UserPostViewModel,
+    userDetailsViewModel: UserDetailsViewModel,
 ) {
 
     Column(
@@ -213,7 +218,7 @@ fun TabContentScreen(
         ) {
         // in this column we are specifying the text
         when (page) {
-            0 -> DashboardScreen(userPostViewModel)
+            0 -> DashboardScreen(userPostViewModel, userDetailsViewModel)
             1 -> AboutScreen(response = response)
         }
     }
@@ -222,7 +227,10 @@ fun TabContentScreen(
 
 
 @Composable
-private fun DashboardScreen(userPostViewModel: UserPostViewModel) {
+private fun DashboardScreen(
+    userPostViewModel: UserPostViewModel,
+    userDetailsViewModel: UserDetailsViewModel
+) {
     val lazyColumnListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -236,8 +244,7 @@ private fun DashboardScreen(userPostViewModel: UserPostViewModel) {
     val postList = userPostViewModel.postList
 
     LaunchedEffect(key1 = shouldStartPaginate.value) {
-        if (shouldStartPaginate.value && userPostViewModel.listState == ListState.IDLE)
-            userPostViewModel.getUserPosts()
+        if (shouldStartPaginate.value && userPostViewModel.listState == ListState.IDLE) userPostViewModel.getUserPosts()
     }
 
     LazyColumn(state = lazyColumnListState) {
@@ -245,7 +252,7 @@ private fun DashboardScreen(userPostViewModel: UserPostViewModel) {
             items = postList,
             //key = { it.url },
         ) { post ->
-            PostAdapter(response = post)
+            PostAdapter(response = post, userDetailsViewModel)
         }
 
         item(
@@ -254,40 +261,30 @@ private fun DashboardScreen(userPostViewModel: UserPostViewModel) {
             when (userPostViewModel.listState) {
                 ListState.LOADING -> {
                     Column(
-                        modifier = Modifier
-                            .fillParentMaxSize(),
+                        modifier = Modifier.fillParentMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            modifier = Modifier
-                                .padding(8.dp),
-                            text = "Loading", fontSize = 10.sp
+                            modifier = Modifier.padding(8.dp), text = "Loading", fontSize = 10.sp
                         )
 
                         CircularProgressIndicator(
-                            color = Color.Black,
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 1.dp
+                            color = Color.Black, modifier = Modifier.size(20.dp), strokeWidth = 1.dp
                         )
                     }
                 }
                 ListState.PAGINATING -> {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            modifier = Modifier
-                                .padding(8.dp),
-                            text = "Refreshing", fontSize = 10.sp
+                            modifier = Modifier.padding(8.dp), text = "Refreshing", fontSize = 10.sp
                         )
                         CircularProgressIndicator(
-                            color = Color.Black,
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 1.dp
+                            color = Color.Black, modifier = Modifier.size(20.dp), strokeWidth = 1.dp
                         )
                     }
                 }
@@ -303,9 +300,7 @@ private fun DashboardScreen(userPostViewModel: UserPostViewModel) {
 
                         Text(text = "Nothing left.")
 
-                        TextButton(
-                            modifier = Modifier
-                                .padding(top = 8.dp),
+                        TextButton(modifier = Modifier.padding(top = 8.dp),
                             elevation = ButtonDefaults.elevation(0.dp),
                             onClick = {
                                 coroutineScope.launch {
@@ -329,8 +324,7 @@ private fun DashboardScreen(userPostViewModel: UserPostViewModel) {
                                         contentDescription = ""
                                     )
                                 }
-                            }
-                        )
+                            })
                     }
                 }
                 else -> {}

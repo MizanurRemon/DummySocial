@@ -1,42 +1,60 @@
 package com.example.dummysocial.Screen
 
 import android.content.Intent
+import android.util.Log
+import android.view.Gravity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.consumeAllChanges
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import coil.compose.rememberImagePainter
 import com.example.dummysocial.Helpers.changeDateFormat
+import com.example.dummysocial.Helpers.isNightMode
 import com.example.dummysocial.Helpers.sendImageAsFile
 import com.example.dummysocial.Model.Post.Data
 import com.example.dummysocial.Navigation.ACtivityNavigation.navigateToUserDetailsActivity
 import com.example.dummysocial.R
 import com.example.dummysocial.Utils.ScreenSize
 import com.example.dummysocial.View.PostDetailsActivity
+import com.example.dummysocial.ViewModel.UserDetailsViewModel
 
 
 @Composable
-fun PostAdapter(response: Data) {
+fun PostAdapter(response: Data, userDetailsViewModel: UserDetailsViewModel) {
     val context = LocalContext.current
+
+
+    var dialogState by remember {
+        mutableStateOf(false)
+    }
+
+    var id by remember {
+        mutableStateOf("")
+    }
+
     Card(
         modifier = Modifier
             .padding(10.dp)
@@ -78,7 +96,9 @@ fun PostAdapter(response: Data) {
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable {
-                            navigateToUserDetailsActivity(response.owner.id, context)
+                            //navigateToUserDetailsActivity(response.owner.id, context)
+                            dialogState = true
+                            id = response.owner.id
                         }
                         //color = Color.Black
                     )
@@ -141,4 +161,123 @@ fun PostAdapter(response: Data) {
 
         }
     }
+
+    BottomSheetDialog(id, userDetailsViewModel, dialogState, onDismissRequest = {
+        dialogState = !it
+    })
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun BottomSheetDialog(
+    id: String,
+    userDetailsViewModel: UserDetailsViewModel,
+    dialogState: Boolean,
+    onDismissRequest: (dialogState: Boolean) -> Unit
+) {
+
+    var dialogHeight by remember {
+        mutableStateOf(200.0)
+    }
+
+    val bgColor = if (isNightMode(LocalContext.current)) R.color.default_color else R.color.white
+    val textColor = if (isNightMode(LocalContext.current)) R.color.white else R.color.black
+
+    if (dialogState) {
+
+        Dialog(
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = false
+            ),
+            onDismissRequest = {
+                onDismissRequest(dialogState)
+                dialogHeight = 200.0
+            },
+        ) {
+
+            val dialogWindowProvider = LocalView.current.parent as DialogWindowProvider
+            dialogWindowProvider.window.setGravity(Gravity.BOTTOM)
+
+            Surface(
+                color = colorResource(
+                    id = bgColor
+                ),
+                shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
+                modifier = Modifier
+                    .padding(0.dp)
+                    .fillMaxWidth()
+                    .height(dialogHeight.dp)
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consumeAllChanges()
+//                            if (dialogHeight <= 200 && dialogHeight >= 800) {
+//
+//                            }
+
+                            dialogHeight = (dialogHeight - dragAmount.y).coerceIn(200.0, 400.0)
+                            Log.d("dataxx", "value: ${dragAmount.y.dp.value.toString()}}")
+
+
+                            //.coerceIn(0.0, (size.height.toFloat() + 50.dp.toPx()).toDouble())
+                        }
+                    }
+
+            ) {
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+
+                    ) {
+
+                    Row() {
+                        Button(onClick = {
+                            dialogHeight += 10
+                        }) {
+                            Text(text = "INC")
+                        }
+
+                        Spacer(modifier = Modifier.size(5.dp))
+
+                        Button(onClick = {
+                            if (dialogHeight > 200) {
+                                dialogHeight -= 10
+                            }
+                        }) {
+                            Text(text = "DEC")
+                        }
+                    }
+                    Text(text = dialogHeight.toString())
+
+
+                }
+                //Text(text = id)
+//                userDetailsViewModel.getUserDetails(id)
+//                when (val result = userDetailsViewModel.response.value) {
+//                    is ApiState.SuccessUserDetails -> {
+//                        Log.d("dataxx", "BottomSheetDialog data: ${result.data.toString()}")
+//                        Text(text = result.data.firstName)
+//                    }
+//
+//                    is ApiState.Failure -> {
+//                        Log.d("dataxx", "Failure: ${result.msg.toString()}")
+//                    }
+//
+//                    ApiState.Loading -> {
+//                        MyCircularProgress()
+//                    }
+//
+//                    ApiState.Empty -> {
+//
+//                    }
+//                }
+            }
+        }
+    }
+}
+
+fun limit(value: Int): Int {
+    return Math.max(0, Math.min(value, 200))
 }

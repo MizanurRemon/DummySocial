@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.airbnb.lottie.compose.*
-import com.example.dummysocial.Adapter.UserAdapter
 import com.example.dummysocial.Helpers.ListState
 
 
@@ -33,9 +32,9 @@ import com.example.dummysocial.R
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.MyCircularProgress
 import com.example.dummysocial.Utils.ScreenSize
-import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.PostByTagViewModel
 import com.example.dummysocial.ViewModel.TagViewModel
+import com.example.dummysocial.ViewModel.UserDetailsViewModel
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
@@ -49,7 +48,8 @@ import kotlin.collections.HashSet
 fun SearchScreen(
     context: Context,
     tagViewModel: TagViewModel,
-    postByTagViewModel: PostByTagViewModel
+    postByTagViewModel: PostByTagViewModel,
+    userDetailsViewModel: UserDetailsViewModel
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.construction))
     val progress by animateLottieCompositionAsState(composition)
@@ -214,6 +214,7 @@ fun SearchScreen(
 
         searchData(
             postByTagViewModel = postByTagViewModel,
+            userDetailsViewModel,
             searchText = searchText.trim().toString()
         )
 
@@ -223,7 +224,11 @@ fun SearchScreen(
 
 
 @Composable
-fun searchData(postByTagViewModel: PostByTagViewModel, searchText: String) {
+fun searchData(
+    postByTagViewModel: PostByTagViewModel,
+    userDetailsViewModel: UserDetailsViewModel,
+    searchText: String
+) {
     val lazyColumnListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -251,7 +256,7 @@ fun searchData(postByTagViewModel: PostByTagViewModel, searchText: String) {
         items(
             items = postList,
         ) { post ->
-            PostAdapter(response = post)
+            PostAdapter(response = post, userDetailsViewModel)
         }
 
         item(

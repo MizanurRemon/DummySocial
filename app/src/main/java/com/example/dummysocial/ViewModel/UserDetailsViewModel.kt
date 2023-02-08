@@ -2,10 +2,13 @@ package com.example.dummysocial.ViewModel
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dummysocial.Model.Post.Data
+import com.example.dummysocial.Model.User.User_response
 import com.example.dummysocial.Repository.MainRepository
 import com.example.dummysocial.Utils.ApiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,12 +28,14 @@ class UserDetailsViewModel @Inject constructor(
 
     init {
         val id: String? = savedStateHandle["userid"]
-        //val id = "60d0fe4f5311236168a109d1"
-        Log.d("dataxx", "userid: ${id.toString()}")
-        getUserDetails(id.toString())
+        //val id = "60d0fe4f5311236168a109ca"
+        if (id != null) {
+            getUserDetails(id.toString())
+        }
     }
 
-    private fun getUserDetails(id: String) = viewModelScope.launch {
+    fun getUserDetails(id: String) = viewModelScope.launch {
+        Log.d("dataxx", "userid: ${id.toString()}")
         mainRepository.getUserDetails(id).onStart {
             response.value = ApiState.Loading
         }.catch {
@@ -40,4 +45,5 @@ class UserDetailsViewModel @Inject constructor(
             response.value = ApiState.SuccessUserDetails(it)
         }
     }
+
 }

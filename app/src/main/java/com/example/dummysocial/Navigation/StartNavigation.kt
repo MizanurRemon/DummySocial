@@ -25,11 +25,11 @@ fun StartNavigation(
     //var navController = rememberNavController()
     NavHost(navController = navController, startDestination = NavigationItem.HomeScreen.route) {
         composable(NavigationItem.HomeScreen.route) {
-            HomeScreen(postViewModel, networkStateViewModel)
+            HomeScreen(postViewModel, networkStateViewModel, userDetailsViewModel)
         }
 
         composable(NavigationItem.SearchScreen.route) {
-            SearchScreen(context, tagViewModel, postByTagViewModel)
+            SearchScreen(context, tagViewModel, postByTagViewModel, userDetailsViewModel)
         }
 
 

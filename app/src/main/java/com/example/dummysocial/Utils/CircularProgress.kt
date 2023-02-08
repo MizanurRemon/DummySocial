@@ -18,8 +18,9 @@ fun MyCircularProgress() {
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(40.dp, 40.dp),
-            color = colorResource(id = R.color.default_color)
+            modifier = Modifier.size(20.dp, 20.dp),
+            color = colorResource(id = R.color.default_color),
+            strokeWidth = 1.dp
         )
     }
 }
