@@ -4,6 +4,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.Gravity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -24,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,11 +37,13 @@ import com.example.dummysocial.Helpers.changeDateFormat
 import com.example.dummysocial.Helpers.isNightMode
 import com.example.dummysocial.Helpers.sendImageAsFile
 import com.example.dummysocial.Model.Post.Data
+import com.example.dummysocial.Model.Post.Owner
 import com.example.dummysocial.Navigation.ACtivityNavigation.navigateToUserDetailsActivity
 import com.example.dummysocial.R
 import com.example.dummysocial.Utils.ScreenSize
 import com.example.dummysocial.View.PostDetailsActivity
 import com.example.dummysocial.ViewModel.UserDetailsViewModel
+import kotlinx.coroutines.NonDisposableHandle.parent
 
 
 @Composable
@@ -84,7 +88,9 @@ fun PostAdapter(response: Data, userDetailsViewModel: UserDetailsViewModel) {
                         .border(1.dp, Color.Gray, CircleShape)
                         .fillMaxSize()
                         .clickable {
-                            navigateToUserDetailsActivity(response.owner.id, context)
+//                            navigateToUserDetailsActivity(response.owner.id, context)
+                            dialogState = true
+                            id = response.owner.id
                         },
                     contentScale = ContentScale.Crop,
                     alignment = Alignment.Center
@@ -162,22 +168,23 @@ fun PostAdapter(response: Data, userDetailsViewModel: UserDetailsViewModel) {
         }
     }
 
-    BottomSheetDialog(id, userDetailsViewModel, dialogState, onDismissRequest = {
+    BottomSheetDialog(response.owner, userDetailsViewModel, dialogState) {
         dialogState = !it
-    })
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheetDialog(
-    id: String,
+    owner: Owner,
     userDetailsViewModel: UserDetailsViewModel,
     dialogState: Boolean,
     onDismissRequest: (dialogState: Boolean) -> Unit
 ) {
 
+    val context = LocalContext.current
     var dialogHeight by remember {
-        mutableStateOf(200.0)
+        mutableStateOf(200)
     }
 
     val bgColor = if (isNightMode(LocalContext.current)) R.color.default_color else R.color.white
@@ -193,7 +200,7 @@ fun BottomSheetDialog(
             ),
             onDismissRequest = {
                 onDismissRequest(dialogState)
-                dialogHeight = 200.0
+                dialogHeight = 200
             },
         ) {
 
@@ -212,11 +219,8 @@ fun BottomSheetDialog(
                     .pointerInput(Unit) {
                         detectDragGestures { change, dragAmount ->
                             change.consumeAllChanges()
-//                            if (dialogHeight <= 200 && dialogHeight >= 800) {
-//
-//                            }
 
-                            dialogHeight = (dialogHeight - dragAmount.y).coerceIn(200.0, 400.0)
+                            dialogHeight = (dialogHeight - dragAmount.y.toInt()).coerceIn(200, 400)
                             Log.d("dataxx", "value: ${dragAmount.y.dp.value.toString()}}")
 
 
@@ -226,53 +230,51 @@ fun BottomSheetDialog(
 
             ) {
 
+
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(10.dp)
+                ) {
 
-                    ) {
+                    Image(
+                        painter = rememberImagePainter(owner.picture.toString()),
+                        modifier = Modifier
+                            .size(80.dp, 80.dp)
+                            .clip(CircleShape)                       // clip to the circle shape
+                            .fillMaxSize()
+                            .background(color = colorResource(id = R.color.purple_200)),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "profileImage",
+                        alignment = Alignment.Center
 
-                    Row() {
-                        Button(onClick = {
-                            dialogHeight += 10
-                        }) {
-                            Text(text = "INC")
-                        }
+                    )
 
-                        Spacer(modifier = Modifier.size(5.dp))
+                    Divider(color = colorResource(id = R.color.transparent_color))
+                    Text(text = owner.firstName)
+                    Divider(color = colorResource(id = R.color.transparent_color))
+                    Text(text = owner.lastName)
 
-                        Button(onClick = {
-                            if (dialogHeight > 200) {
-                                dialogHeight -= 10
-                            }
-                        }) {
-                            Text(text = "DEC")
-                        }
+                    Divider(color = colorResource(id = R.color.transparent_color))
+
+                    Button(onClick = {
+                        onDismissRequest(dialogState)
+                        navigateToUserDetailsActivity(
+                            owner.id,
+                            context = context
+                        )
+                    }) {
+                        Text(
+                            text = "Full Details",
+                            style = TextStyle(
+                                colorResource(id = R.color.white),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            )
+                        )
                     }
-                    Text(text = dialogHeight.toString())
-
-
                 }
-                //Text(text = id)
-//                userDetailsViewModel.getUserDetails(id)
-//                when (val result = userDetailsViewModel.response.value) {
-//                    is ApiState.SuccessUserDetails -> {
-//                        Log.d("dataxx", "BottomSheetDialog data: ${result.data.toString()}")
-//                        Text(text = result.data.firstName)
-//                    }
-//
-//                    is ApiState.Failure -> {
-//                        Log.d("dataxx", "Failure: ${result.msg.toString()}")
-//                    }
-//
-//                    ApiState.Loading -> {
-//                        MyCircularProgress()
-//                    }
-//
-//                    ApiState.Empty -> {
-//
-//                    }
-//                }
+
+
             }
         }
     }
