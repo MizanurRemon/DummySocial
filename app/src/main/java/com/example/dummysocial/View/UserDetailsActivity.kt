@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.example.dummysocial.Room.ViewModel.FavoritePostViewModel
 import com.example.dummysocial.Screen.ProfileScreen
 import com.example.dummysocial.ViewModel.UserDetailsViewModel
 import com.example.dummysocial.ViewModel.UserPostViewModel
@@ -24,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class UserDetailsActivity : ComponentActivity() {
     private val userDetailsViewModel: UserDetailsViewModel by viewModels()
     private val userPostViewModel: UserPostViewModel by viewModels()
+    private val favoritePostViewModel: FavoritePostViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -40,7 +42,8 @@ class UserDetailsActivity : ComponentActivity() {
                         context = LocalContext.current,
                         navController = navController,
                         userDetailsViewModel = userDetailsViewModel,
-                        userPostViewModel = userPostViewModel
+                        userPostViewModel = userPostViewModel,
+                        favoritePostViewModel = favoritePostViewModel
                     )
                 }
             }

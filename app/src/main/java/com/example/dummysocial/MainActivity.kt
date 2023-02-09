@@ -31,6 +31,7 @@ import com.example.dummysocial.Navigation.StartNavigation
 import com.example.dummysocial.Network.NetworkStateViewModel
 import com.example.dummysocial.Network.checkConnection
 import com.example.dummysocial.Permissions.MultiplePermissions
+import com.example.dummysocial.Room.ViewModel.FavoritePostViewModel
 import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.ViewModel.*
 import com.example.dummysocial.ui.theme.DummySocialTheme
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
     private val userPostViewModel: UserPostViewModel by viewModels()
     private val tagViewModel: TagViewModel by viewModels()
     private val postByTagViewModel: PostByTagViewModel by viewModels()
+    private val favoritePostViewModel: FavoritePostViewModel by viewModels()
 
     var height: Int = 0
     var width: Int = 0
@@ -175,7 +177,8 @@ class MainActivity : ComponentActivity() {
                     userDetailsViewModel,
                     userPostViewModel,
                     tagViewModel,
-                    postByTagViewModel
+                    postByTagViewModel,
+                    favoritePostViewModel
                 )
 
             }

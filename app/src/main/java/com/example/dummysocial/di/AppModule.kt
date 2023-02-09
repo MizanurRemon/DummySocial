@@ -1,6 +1,10 @@
 package com.example.dummysocial.di
 
+import android.app.Application
+import androidx.room.Room
 import com.example.dummysocial.API.APIService
+import com.example.dummysocial.Room.Dao.PostDao
+import com.example.dummysocial.Room.Database.LocalDb
 import com.example.dummysocial.Utils.Constants
 import dagger.Module
 import dagger.Provides
@@ -24,4 +28,16 @@ class AppModule {
     @Provides
     fun providesApiServices(retrofit: Retrofit): APIService =
         retrofit.create(APIService::class.java)
+
+
+    @Provides
+    @Singleton
+    fun providesDatabase(application: Application): LocalDb =
+        Room.databaseBuilder(application, LocalDb::class.java, "PostDatabase")
+            .fallbackToDestructiveMigration()
+            .build()
+
+    @Provides
+    @Singleton
+    fun providesDao(db: LocalDb): PostDao = db.getDao()
 }

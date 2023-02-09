@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.runtime.*
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +34,7 @@ import com.example.dummysocial.Helpers.ListState
 import com.example.dummysocial.Helpers.isNightMode
 import com.example.dummysocial.Model.UserDetails.User_details_response
 import com.example.dummysocial.R
+import com.example.dummysocial.Room.ViewModel.FavoritePostViewModel
 
 import com.example.dummysocial.Tab.TextTabs
 import com.example.dummysocial.Utils.ApiState
@@ -54,7 +53,8 @@ fun ProfileScreen(
     context: Context,
     navController: NavHostController,
     userDetailsViewModel: UserDetailsViewModel,
-    userPostViewModel: UserPostViewModel
+    userPostViewModel: UserPostViewModel,
+    favoritePostViewModel: FavoritePostViewModel
 ) {
     DummySocialTheme {
 
@@ -62,7 +62,7 @@ fun ProfileScreen(
         when (val result = userDetailsViewModel.response.value) {
             is ApiState.SuccessUserDetails -> {
                 Log.d("dataxx", "getUser: ${result.data.toString()}")
-                MainUI(result.data, userPostViewModel, navController, userDetailsViewModel)
+                MainUI(result.data, userPostViewModel, navController, userDetailsViewModel, favoritePostViewModel)
             }
 
             is ApiState.Failure -> {
@@ -86,7 +86,8 @@ fun MainUI(
     response: User_details_response,
     userPostViewModel: UserPostViewModel,
     navController: NavHostController,
-    userDetailsViewModel: UserDetailsViewModel
+    userDetailsViewModel: UserDetailsViewModel,
+    favoritePostViewModel: FavoritePostViewModel
 ) {
 
     val context = LocalContext.current
@@ -181,7 +182,7 @@ fun MainUI(
         ) {
             TextTabs(pagerState = pagerState, list)
         }
-        TabsContent(pagerState = pagerState, response, userPostViewModel, userDetailsViewModel)
+        TabsContent(pagerState = pagerState, response, userPostViewModel, userDetailsViewModel, favoritePostViewModel)
     }
 }
 
@@ -191,14 +192,15 @@ fun TabsContent(
     pagerState: PagerState,
     response: User_details_response,
     userPostViewModel: UserPostViewModel,
-    userDetailsViewModel: UserDetailsViewModel
+    userDetailsViewModel: UserDetailsViewModel,
+    favoritePostViewModel: FavoritePostViewModel
 ) {
     // on below line we are creating
     // horizontal pager for our tab layout.
     HorizontalPager(
         state = pagerState, modifier = Modifier.fillMaxSize()
     ) { page ->
-        TabContentScreen(page, response, userPostViewModel, userDetailsViewModel)
+        TabContentScreen(page, response, userPostViewModel, userDetailsViewModel, favoritePostViewModel)
     }
 }
 
@@ -208,6 +210,7 @@ fun TabContentScreen(
     response: User_details_response,
     userPostViewModel: UserPostViewModel,
     userDetailsViewModel: UserDetailsViewModel,
+    favoritePostViewModel: FavoritePostViewModel
 ) {
 
     Column(
@@ -218,7 +221,7 @@ fun TabContentScreen(
         ) {
         // in this column we are specifying the text
         when (page) {
-            0 -> DashboardScreen(userPostViewModel, userDetailsViewModel)
+            0 -> DashboardScreen(userPostViewModel, userDetailsViewModel,favoritePostViewModel)
             1 -> AboutScreen(response = response)
         }
     }
@@ -229,7 +232,8 @@ fun TabContentScreen(
 @Composable
 private fun DashboardScreen(
     userPostViewModel: UserPostViewModel,
-    userDetailsViewModel: UserDetailsViewModel
+    userDetailsViewModel: UserDetailsViewModel,
+    favoritePostViewModel: FavoritePostViewModel
 ) {
     val lazyColumnListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -252,7 +256,7 @@ private fun DashboardScreen(
             items = postList,
             //key = { it.url },
         ) { post ->
-            PostAdapter(response = post, userDetailsViewModel)
+            PostAdapter(response = post, userDetailsViewModel, favoritePostViewModel)
         }
 
         item(

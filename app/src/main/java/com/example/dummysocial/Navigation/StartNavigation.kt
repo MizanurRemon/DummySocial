@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.dummysocial.Network.NetworkStateViewModel
+import com.example.dummysocial.Room.ViewModel.FavoritePostViewModel
+import com.example.dummysocial.Screen.FavoriteScreen
 import com.example.dummysocial.Screen.HomeScreen
 import com.example.dummysocial.Screen.ProfileScreen
 import com.example.dummysocial.Screen.SearchScreen
@@ -20,21 +22,27 @@ fun StartNavigation(
     userDetailsViewModel: UserDetailsViewModel,
     userPostViewModel: UserPostViewModel,
     tagViewModel: TagViewModel,
-    postByTagViewModel: PostByTagViewModel
+    postByTagViewModel: PostByTagViewModel,
+    favoritePostViewModel: FavoritePostViewModel
 ) {
     //var navController = rememberNavController()
     NavHost(navController = navController, startDestination = NavigationItem.HomeScreen.route) {
         composable(NavigationItem.HomeScreen.route) {
-            HomeScreen(postViewModel, networkStateViewModel, userDetailsViewModel)
+            HomeScreen(postViewModel, networkStateViewModel, userDetailsViewModel, favoritePostViewModel)
         }
 
         composable(NavigationItem.SearchScreen.route) {
-            SearchScreen(context, tagViewModel, postByTagViewModel, userDetailsViewModel)
+            SearchScreen(context, tagViewModel, postByTagViewModel, userDetailsViewModel, favoritePostViewModel)
         }
 
 
         composable(NavigationItem.ProfileScreen.route) {
-            ProfileScreen(context,navController, userDetailsViewModel, userPostViewModel)
+            ProfileScreen(context,navController, userDetailsViewModel, userPostViewModel, favoritePostViewModel)
+        }
+
+
+        composable(NavigationItem.FavoriteScreen.route){
+            FavoriteScreen(navController, favoritePostViewModel)
         }
     }
 }

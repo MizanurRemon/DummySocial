@@ -1,16 +1,14 @@
 package com.example.dummysocial.Screen
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
 import android.view.Gravity
-import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -34,30 +32,140 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.navigation.NavHostController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.example.dummysocial.Helpers.changeDateFormat
 import com.example.dummysocial.Helpers.isNightMode
 import com.example.dummysocial.Helpers.sendImageAsFile
-import com.example.dummysocial.Model.Post.Data
-import com.example.dummysocial.Model.Post.Owner
 import com.example.dummysocial.Navigation.ACtivityNavigation.navigateToUserDetailsActivity
 import com.example.dummysocial.R
 import com.example.dummysocial.Room.Model.FavoritePost
 import com.example.dummysocial.Room.ViewModel.FavoritePostViewModel
+import com.example.dummysocial.Utils.MyCircularProgress
 import com.example.dummysocial.Utils.ScreenSize
+import com.example.dummysocial.Utils.ShowToast
 import com.example.dummysocial.View.PostDetailsActivity
-import com.example.dummysocial.ViewModel.UserDetailsViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
-
-@OptIn(ExperimentalCoilApi::class)
 @Composable
-fun PostAdapter(
-    response: Data,
-    userDetailsViewModel: UserDetailsViewModel,
+fun FavoriteScreen(navController: NavHostController, favoritePostViewModel: FavoritePostViewModel) {
+
+    BottomSheetLayout(favoritePostViewModel)
+}
+
+@SuppressLint("UnrememberedMutableState")
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun BottomSheetLayout(favoritePostViewModel: FavoritePostViewModel) {
+
+    val context = LocalContext.current
+    var postList: List<FavoritePost> = listOf()
+    val coroutineScope = rememberCoroutineScope()
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+    )
+
+    var dialogHeight by remember {
+        mutableStateOf(20)
+    }
+
+    BottomSheetScaffold(
+        sheetPeekHeight = dialogHeight.dp,
+        sheetShape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
+        scaffoldState = bottomSheetScaffoldState,
+        contentColor = colorResource(id = R.color.LightCyan),
+        sheetContent = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Button(colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.Gray)),
+                    modifier = Modifier
+                        .height(5.dp)
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consumeAllChanges()
+
+                                dialogHeight =
+                                    (dialogHeight - dragAmount.y.toInt()).coerceIn(20, 400)
+
+                                //.coerceIn(0.0, (size.height.toFloat() + 50.dp.toPx()).toDouble())
+                            }
+                        },
+                    onClick = { /*TODO*/ }) {
+
+                }
+                Box(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth()
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Bottom Sheet", style = TextStyle(
+                                color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold
+                            )
+                        )
+
+                        Text(
+                            text = "Bottom Sheet", style = TextStyle(
+                                color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold
+                            )
+                        )
+
+                        Text(
+                            text = "Bottom Sheet", style = TextStyle(
+                                color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+            }
+        },
+    ) {
+        Scaffold {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                favoritePostViewModel.getAllFavoritePost()
+                var response = favoritePostViewModel.allFavoritePost.value
+                //Toast.makeText(context, response.size.toString(), Toast.LENGTH_SHORT).show()
+                when (response.size) {
+                    0 -> Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "No Data Found", style = TextStyle(fontSize = 10.sp))
+                        Divider(color = Color.Transparent, modifier = Modifier.height(10.dp))
+                        MyCircularProgress()
+                    }
+                    else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(response) { it ->
+                            eachRow(response = it, favoritePostViewModel)
+                        }
+                    }
+                }
+            }
+        }
+
+
+    }
+}
+
+
+@OptIn(ExperimentalCoilApi::class, ExperimentalFoundationApi::class)
+@Composable
+fun eachRow(
+    response: FavoritePost,
     favoritePostViewModel: FavoritePostViewModel
 ) {
     val context = LocalContext.current
@@ -71,18 +179,22 @@ fun PostAdapter(
         mutableStateOf("")
     }
 
-
-    //Log.d("dataxx", "PostAdapter: ${favoritePostViewModel.getStatusOfPost(response.id).toString()}")
-
     Card(
         modifier = Modifier
             .padding(10.dp)
             .fillMaxWidth()
-            .clickable {
-                var intent = Intent(Intent(context, PostDetailsActivity::class.java))
-                intent.putExtra("id", response.id)
-                context.startActivity(intent)
-            },
+            .combinedClickable(
+                onClick = {
+                    var intent = Intent(Intent(context, PostDetailsActivity::class.java))
+                    intent.putExtra("id", response.postid)
+                    context.startActivity(intent)
+                },
+
+                onLongClick = {
+                    favoritePostViewModel.deletePostFromFavorite(response.postid)
+                    ShowToast.successToast(context, "moved from favorite")
+                }
+            ),
         elevation = 1.dp,
         shape = RoundedCornerShape(4.dp),
         //backgroundColor = colorResource(R.color.LightGrey),
@@ -95,7 +207,7 @@ fun PostAdapter(
             ) {
 
                 Image(
-                    painter = rememberImagePainter(response.owner.picture),
+                    painter = rememberImagePainter(response.ownerimage),
                     contentDescription = null,
                     modifier = Modifier
                         .size(30.dp, 30.dp)
@@ -105,20 +217,20 @@ fun PostAdapter(
                         .clickable {
 //                            navigateToUserDetailsActivity(response.owner.id, context)
                             dialogState = true
-                            id = response.owner.id
+                            id = response.ownerid
                         },
                     contentScale = ContentScale.Crop,
                     alignment = Alignment.Center
                 )
 
                 Column() {
-                    Text(text = "${response.owner.firstName} ${response.owner.lastName}",
+                    Text(text = "${response.firstname} ${response.lastname}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable {
                             //navigateToUserDetailsActivity(response.owner.id, context)
                             dialogState = true
-                            id = response.owner.id
+                            id = response.ownerid
                         }
                         //color = Color.Black
                     )
@@ -126,7 +238,7 @@ fun PostAdapter(
                     Text(
                         text = " ${
                             changeDateFormat(
-                                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "MMM d, yyyy", response.publishDate
+                                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "MMM d, yyyy", response.date
                             )
                         }", fontSize = 10.sp, color = Color.Gray
                     )
@@ -147,18 +259,17 @@ fun PostAdapter(
 
                 )
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = {
-                    scope.launch {
-                        addFavoritePost(context, response, favoritePostViewModel)
-                    }
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.favorite),
-                        contentDescription = "react",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 10.dp)
+            ) {
+
+                Icon(
+                    painterResource(id = R.drawable.favoritefilled),
+                    contentDescription = "react",
+                    modifier = Modifier.size(24.dp),
+                    colorResource(id = R.color.red)
+                )
 
                 IconButton(onClick = { sendImageAsFile(context, response.image) }) {
                     Icon(
@@ -171,7 +282,7 @@ fun PostAdapter(
                 Spacer(Modifier.weight(1f))
 
                 Text(
-                    text = "${response.likes.toString()} likes",
+                    text = "${response.likes} likes",
                     fontSize = 10.sp,
                     modifier = Modifier.padding(start = 10.dp, end = 10.dp)
                 )
@@ -181,53 +292,16 @@ fun PostAdapter(
         }
     }
 
-    BottomSheetDialog(response.owner, userDetailsViewModel, dialogState) {
+    BottomSheetDialog(response, dialogState) {
         dialogState = !it
     }
 }
 
-suspend fun addFavoritePost(
-    context: Context,
-    response: Data,
-    favoritePostViewModel: FavoritePostViewModel
-) {
-
-
-    favoritePostViewModel.checkPostAvailability(response.id)
-    delay(1000)
-    var cp = favoritePostViewModel.cnt
-
-    if (cp >= 1) {
-        Toast.makeText(context, "exist in favorite", Toast.LENGTH_SHORT).show()
-    } else {
-        favoritePostViewModel.addFavoritePost(
-            FavoritePost(
-                postid = response.id,
-                text = response.text,
-                image = response.image,
-                date = response.publishDate,
-                ownerid = response.owner.id,
-                firstname = response.owner.firstName,
-                lastname = response.owner.lastName,
-                ownerimage = response.owner.picture,
-                status = "1",
-                likes = response.likes.toString()
-            )
-
-        )
-
-        Toast.makeText(context, "added as favorite", Toast.LENGTH_SHORT).show()
-    }
-
-    //Toast.makeText(context, cp.toString(), Toast.LENGTH_SHORT).show()
-
-}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheetDialog(
-    owner: Owner,
-    userDetailsViewModel: UserDetailsViewModel,
+    favoritePost: FavoritePost,
     dialogState: Boolean,
     onDismissRequest: (dialogState: Boolean) -> Unit
 ) {
@@ -286,7 +360,7 @@ fun BottomSheetDialog(
                 ) {
 
                     Image(
-                        painter = rememberImagePainter(owner.picture.toString()),
+                        painter = rememberImagePainter(favoritePost.ownerimage),
                         modifier = Modifier
                             .size(80.dp, 80.dp)
                             .clip(CircleShape)                       // clip to the circle shape
@@ -299,16 +373,16 @@ fun BottomSheetDialog(
                     )
 
                     Divider(color = colorResource(id = R.color.transparent_color))
-                    Text(text = owner.firstName)
+                    Text(text = favoritePost.firstname)
                     Divider(color = colorResource(id = R.color.transparent_color))
-                    Text(text = owner.lastName)
+                    Text(text = favoritePost.lastname)
 
                     Divider(color = colorResource(id = R.color.transparent_color))
 
                     Button(onClick = {
                         onDismissRequest(dialogState)
                         navigateToUserDetailsActivity(
-                            owner.id, context = context
+                            favoritePost.ownerid, context = context
                         )
                     }) {
                         Text(
@@ -326,4 +400,3 @@ fun BottomSheetDialog(
         }
     }
 }
-

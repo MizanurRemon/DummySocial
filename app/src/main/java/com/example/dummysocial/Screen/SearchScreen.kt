@@ -29,6 +29,7 @@ import com.example.dummysocial.Helpers.ListState
 
 
 import com.example.dummysocial.R
+import com.example.dummysocial.Room.ViewModel.FavoritePostViewModel
 import com.example.dummysocial.Utils.ApiState
 import com.example.dummysocial.Utils.MyCircularProgress
 import com.example.dummysocial.Utils.ScreenSize
@@ -49,7 +50,8 @@ fun SearchScreen(
     context: Context,
     tagViewModel: TagViewModel,
     postByTagViewModel: PostByTagViewModel,
-    userDetailsViewModel: UserDetailsViewModel
+    userDetailsViewModel: UserDetailsViewModel,
+    favoritePostViewModel: FavoritePostViewModel
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.construction))
     val progress by animateLottieCompositionAsState(composition)
@@ -215,6 +217,7 @@ fun SearchScreen(
         searchData(
             postByTagViewModel = postByTagViewModel,
             userDetailsViewModel,
+            favoritePostViewModel,
             searchText = searchText.trim().toString()
         )
 
@@ -227,6 +230,7 @@ fun SearchScreen(
 fun searchData(
     postByTagViewModel: PostByTagViewModel,
     userDetailsViewModel: UserDetailsViewModel,
+    favoritePostViewModel: FavoritePostViewModel,
     searchText: String
 ) {
     val lazyColumnListState = rememberLazyListState()
@@ -256,7 +260,7 @@ fun searchData(
         items(
             items = postList,
         ) { post ->
-            PostAdapter(response = post, userDetailsViewModel)
+            PostAdapter(response = post, userDetailsViewModel, favoritePostViewModel)
         }
 
         item(
