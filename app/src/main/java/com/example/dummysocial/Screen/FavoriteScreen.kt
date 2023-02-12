@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
 import android.view.Gravity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -75,6 +77,17 @@ fun BottomSheetLayout(favoritePostViewModel: FavoritePostViewModel) {
         scaffoldState = bottomSheetScaffoldState,
         contentColor = colorResource(id = R.color.LightCyan),
         sheetContent = {
+//            BackHandler() {
+//                Toast.makeText(context, "back", Toast.LENGTH_SHORT).show()
+//            }
+
+            if (dialogHeight > 20) {
+                BackHandler() {
+                    //Toast.makeText(context, "back", Toast.LENGTH_SHORT).show()
+                    dialogHeight = 20
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -150,7 +163,7 @@ fun BottomSheetLayout(favoritePostViewModel: FavoritePostViewModel) {
                     }
                     else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(response) { it ->
-                            eachRow(response = it, favoritePostViewModel)
+                            eachRow(response = it, favoritePostViewModel, dialogHeight)
                         }
                     }
                 }
@@ -166,7 +179,8 @@ fun BottomSheetLayout(favoritePostViewModel: FavoritePostViewModel) {
 @Composable
 fun eachRow(
     response: FavoritePost,
-    favoritePostViewModel: FavoritePostViewModel
+    favoritePostViewModel: FavoritePostViewModel,
+    dialogHeight: Int
 ) {
     val context = LocalContext.current
 
@@ -179,6 +193,8 @@ fun eachRow(
         mutableStateOf("")
     }
 
+
+    //Log.d("datarowxx", "eachRow: ${favoritePostViewModel.getStatusOfPost(response.postid).toString()}")
     Card(
         modifier = Modifier
             .padding(10.dp)
